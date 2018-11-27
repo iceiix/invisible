@@ -18,7 +18,6 @@ pub mod shaders;
 pub mod model;
 
 use crate::gl;
-use image;
 use byteorder::{WriteBytesExt, NativeEndian};
 use cgmath::prelude::*;
 use collision;
