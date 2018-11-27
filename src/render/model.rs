@@ -155,9 +155,7 @@ impl Manager {
 
             for model in collection.models.values() {
                 model.array.bind();
-                println!("model.matrix = {:?}", &model.matrix);
                 collection.shader.model_matrix.map(|v| v.set_matrix4(&model.matrix[0]));
-println!("about to draw model {:?} {:?}", model.count, self.index_type);
                 gl::draw_elements(gl::TRIANGLES, model.count, self.index_type, 0);
             }
         }
