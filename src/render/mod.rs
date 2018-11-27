@@ -52,9 +52,6 @@ pub struct Renderer {
 
     trans_shader: TransShader,
 
-    element_buffer: gl::Buffer,
-    element_buffer_size: usize,
-    element_buffer_type: gl::Type,
 
     pub camera: Camera,
     perspective_matrix: cgmath::Matrix4<f32>,
@@ -68,23 +65,6 @@ pub struct Renderer {
 
     pub width: u32,
     pub height: u32,
-}
-
-#[derive(Default)]
-pub struct ChunkBuffer {
-    solid: Option<ChunkRenderInfo>,
-    trans: Option<ChunkRenderInfo>,
-}
-
-impl ChunkBuffer {
-    pub fn new() -> ChunkBuffer { Default::default() }
-}
-
-struct ChunkRenderInfo {
-    array: gl::VertexArray,
-    buffer: gl::Buffer,
-    buffer_size: usize,
-    count: usize,
 }
 
 impl Renderer {
@@ -124,10 +104,6 @@ impl Renderer {
             gl_texture: tex,
 
             trans_shader,
-
-            element_buffer: gl::Buffer::new(),
-            element_buffer_size: 0,
-            element_buffer_type: gl::UNSIGNED_BYTE,
 
             width: 0,
             height: 0,
@@ -216,73 +192,6 @@ impl Renderer {
         gl::check_gl_error();
 
         self.frame_id = self.frame_id.wrapping_add(1);
-    }
-
-    fn ensure_element_buffer(&mut self, size: usize) {
-        if self.element_buffer_size < size {
-            let (data, ty) = self::generate_element_buffer(size);
-            self.element_buffer_type = ty;
-            self.element_buffer.bind(gl::ELEMENT_ARRAY_BUFFER);
-            self.element_buffer.set_data(gl::ELEMENT_ARRAY_BUFFER, &data, gl::DYNAMIC_DRAW);
-            self.element_buffer_size = size;
-        }
-    }
-
-    pub fn update_chunk_solid(&mut self, buffer: &mut ChunkBuffer, data: &[u8], count: usize) {
-        self.ensure_element_buffer(count);
-        if count == 0 {
-            if buffer.solid.is_some() {
-                buffer.solid = None;
-            }
-            return;
-        }
-        let new = buffer.solid.is_none();
-        if buffer.solid.is_none() {
-            buffer.solid = Some(ChunkRenderInfo {
-                array: gl::VertexArray::new(),
-                buffer: gl::Buffer::new(),
-                buffer_size: 0,
-                count: 0,
-            });
-        }
-        let info = buffer.solid.as_mut().unwrap();
-
-        info.array.bind();
-
-        self.element_buffer.bind(gl::ELEMENT_ARRAY_BUFFER);
-
-        info.buffer.bind(gl::ARRAY_BUFFER);
-        if new || info.buffer_size < data.len() {
-            info.buffer_size = data.len();
-            info.buffer.set_data(gl::ARRAY_BUFFER, data, gl::DYNAMIC_DRAW);
-        } else {
-            info.buffer.re_set_data(gl::ARRAY_BUFFER, data);
-        }
-
-        info.count = count;
-    }
-
-    pub fn update_chunk_trans(&mut self, buffer: &mut ChunkBuffer, _data: &[u8], count: usize) {
-        self.ensure_element_buffer(count);
-        if count == 0 {
-            if buffer.trans.is_some() {
-                buffer.trans = None;
-            }
-            return;
-        }
-        if buffer.trans.is_none() {
-            buffer.trans = Some(ChunkRenderInfo {
-                array: gl::VertexArray::new(),
-                buffer: gl::Buffer::new(),
-                buffer_size: 0,
-                count: 0,
-            });
-        }
-        let info = buffer.trans.as_mut().unwrap();
-
-        info.array.bind();
-
-        info.count = count;
     }
 
     fn do_pending_textures(&mut self) {
