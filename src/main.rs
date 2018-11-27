@@ -16,14 +16,6 @@ pub mod gl;
 pub mod render;
 pub mod sun;
 
-use sdl2::Sdl;
-use sdl2::event::Event;
-
-pub struct Game {
-    renderer: render::Renderer,
-    sdl: Sdl,
-}
-
 fn main() {
     println!("Starting steven");
 
@@ -45,24 +37,20 @@ fn main() {
 
     gl::init(&sdl_video);
 
-    let renderer = render::Renderer::new();
-    let mut game = Game {
-        renderer,
-        sdl,
-    };
-    let mut events = game.sdl.event_pump().unwrap();
-    let mut sun_model = sun::SunModel::new(&mut game.renderer);
+    let mut renderer = render::Renderer::new();
+    let mut events = sdl.event_pump().unwrap();
+    let mut sun_model = sun::SunModel::new(&mut renderer);
     'outer: loop {
-        sun_model.tick(&mut game.renderer);
+        sun_model.tick(&mut renderer);
 
-        game.renderer.update_camera();
-        game.renderer.tick();
+        renderer.update_camera();
+        renderer.tick();
 
         window.gl_swap_window();
 
         for event in events.poll_iter() {
             match event {
-                Event::Quit{..} => break 'outer,
+                sdl2::event::Event::Quit{..} => break 'outer,
                 _ => (),
             }
         }
