@@ -23,3 +23,8 @@ collision = "0.18.0"
 [dependencies.steven_gl]
 path = "./gl"
 version = "0"
+
+[dependencies.steven_resources]
+path = "./resources"
+version = "0"
+
