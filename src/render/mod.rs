@@ -217,21 +217,6 @@ impl TransInfo {
     }
 }
 
-#[derive(Clone, Debug)]
-pub struct Texture {
-    pub name: String,
-    pub atlas: i32,
-    x: usize,
-    y: usize,
-    width: usize,
-    height: usize,
-    is_rel: bool, // Save some cycles for non-relative textures
-    rel_x: f32,
-    rel_y: f32,
-    rel_width: f32,
-    rel_height: f32,
-}
-
 #[allow(unused_must_use)]
 pub fn generate_element_buffer(size: usize) -> (Vec<u8>, gl::Type) {
     let mut ty = gl::UNSIGNED_SHORT;
