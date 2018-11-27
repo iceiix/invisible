@@ -87,7 +87,7 @@ impl Renderer {
         tex.set_parameter(gl::TEXTURE_2D_ARRAY, gl::TEXTURE_WRAP_S, gl::CLAMP_TO_EDGE);
         tex.set_parameter(gl::TEXTURE_2D_ARRAY, gl::TEXTURE_WRAP_T, gl::CLAMP_TO_EDGE);
 
-        let textures = TextureManager::new(res.clone());
+        let textures = TextureManager::new();
         let textures = Arc::new(RwLock::new(textures));
 
         let mut greg = glsl::Registry::new();
@@ -404,7 +404,7 @@ pub struct TextureManager {
 }
 
 impl TextureManager {
-    fn new(_res: Arc<RwLock<resources::Manager>>) -> TextureManager {
+    fn new() -> TextureManager {
         let mut tm = TextureManager {
             textures: HashMap::with_hasher(BuildHasherDefault::default()),
             version: 1,
