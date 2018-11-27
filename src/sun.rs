@@ -27,7 +27,7 @@ impl SunModel {
         renderer.model.create_model(
             model::SUN,
             vec![vec![
-                model::Vertex{x: 0.0, y: -50.0, z: -50.0},
+                model::Vertex{x: 50.0, y: -100.0, z: -50.0},
                 model::Vertex{x: 0.0, y: 50.0, z: -50.0},
                 model::Vertex{x: 0.0, y: -50.0, z: 50.0},
                 model::Vertex{x: 0.0, y: 50.0, z: 50.0},
