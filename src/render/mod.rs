@@ -295,56 +295,6 @@ pub struct Texture {
     rel_height: f32,
 }
 
-impl Texture {
-    pub fn get_x(&self) -> usize {
-        if self.is_rel {
-            self.x + ((self.width as f32) * self.rel_x) as usize
-        } else {
-            self.x
-        }
-    }
-
-    pub fn get_y(&self) -> usize {
-        if self.is_rel {
-            self.y + ((self.height as f32) * self.rel_y) as usize
-        } else {
-            self.y
-        }
-    }
-
-    pub fn get_width(&self) -> usize {
-        if self.is_rel {
-            ((self.width as f32) * self.rel_width) as usize
-        } else {
-            self.width
-        }
-    }
-
-    pub fn get_height(&self) -> usize {
-        if self.is_rel {
-            ((self.height as f32) * self.rel_height) as usize
-        } else {
-            self.height
-        }
-    }
-
-    pub fn relative(&self, x: f32, y: f32, width: f32, height: f32) -> Texture {
-        Texture {
-            name: self.name.clone(),
-            x: self.x,
-            y: self.y,
-            atlas: self.atlas,
-            width: self.width,
-            height: self.height,
-            is_rel: true,
-            rel_x: self.rel_x + x * self.rel_width,
-            rel_y: self.rel_y + y * self.rel_height,
-            rel_width: width * self.rel_width,
-            rel_height: height * self.rel_height,
-        }
-    }
-}
-
 #[allow(unused_must_use)]
 pub fn generate_element_buffer(size: usize) -> (Vec<u8>, gl::Type) {
     let mut ty = gl::UNSIGNED_SHORT;
