@@ -8,11 +8,6 @@ in float vID;
 
 out vec4 fragColor;
 
-#include lookup_texture
-
 void main() {
-	vec4 col = atlasTexture();
-	if (col.a <= 0.05) discard;
-	fragColor = col * colorMul[int(vID)];
-fragColor=vec4(1.0, 1.0, 1.0, 1.0);
+	fragColor=vec4(1.0, 1.0, 1.0, 1.0);
 }

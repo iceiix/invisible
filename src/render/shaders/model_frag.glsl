@@ -10,7 +10,5 @@ in float vID;
 
 out vec4 fragColor;
 
-#include lookup_texture
-
 void main() {
 }
