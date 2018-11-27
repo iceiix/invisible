@@ -4,7 +4,6 @@ use cgmath::{Vector3, Matrix4, Decomposed, Rotation3, Rad, Quaternion};
 
 pub struct SunModel {
     moon: model::ModelKey,
-    last_phase: i32,
 }
 
 const SIZE: f32 = 50.0;
@@ -13,52 +12,27 @@ impl SunModel {
 
     pub fn new(renderer: &mut render::Renderer) -> SunModel {
         SunModel {
-            moon: SunModel::generate_moon(renderer, 0),
-            last_phase: 0,
+            moon: SunModel::generate_moon(renderer),
         }
     }
 
     pub fn tick(&mut self, renderer: &mut render::Renderer) {
-        use std::f64::consts::PI;
-        let world_time: f64 = 0.0;
-        let world_age: i64 = 0;
-        let phase = ((world_age / 24000) % 8) as i32;
-        if phase != self.last_phase {
-            renderer.model.remove_model(self.moon);
-            self.moon = SunModel::generate_moon(renderer, phase);
-            self.last_phase = phase;
-        }
-
-        let time = world_time / 12000.0;
-        let ox = (time * PI).cos() * 300.0;
-        let oy = (time * PI).sin() * 300.0;
-
-        let x: f64 = 0.5;
-        let y: f64 = 13.2;
-        let z: f64 = 0.5;
-
-        {
-            let moon = renderer.model.get_model(self.moon).unwrap();
-            moon.matrix[0] = Matrix4::from(Decomposed {
-                scale: 1.0,
-                rot: Quaternion::from_angle_z(Rad((PI - (time * PI)) as f32)),
-                disp: Vector3::new(
-                    (x - ox) as f32,
-                    -(y - oy) as f32,
-                    z as f32,
-                ),
-            });
-        }
+        let moon = renderer.model.get_model(self.moon).unwrap();
+        moon.matrix[0] = Matrix4::from(Decomposed {
+            scale: 1.0,
+            rot: Quaternion::from_angle_z(Rad((0) as f32)),
+            disp: Vector3::new(-300.5, -13.2, 0.5),
+        });
     }
 
     pub fn remove(&mut self, renderer: &mut render::Renderer) {
         renderer.model.remove_model(self.moon);
     }
 
-    pub fn generate_moon(renderer: &mut render::Renderer, phase: i32) -> model::ModelKey {
+    pub fn generate_moon(renderer: &mut render::Renderer) -> model::ModelKey {
         let tex = render::Renderer::get_texture(renderer.get_textures_ref(), "environment/moon_phases");
-        let mpx = (phase % 4) as f64 * (1.0 / 4.0);
-        let mpy = (phase / 4) as f64 * (1.0 / 2.0);
+        let mpx = (0 % 4) as f64 * (1.0 / 4.0);
+        let mpy = (0 / 4) as f64 * (1.0 / 2.0);
         renderer.model.create_model(
             model::SUN,
             vec![vec![
