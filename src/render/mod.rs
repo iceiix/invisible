@@ -297,87 +297,14 @@ impl TransInfo {
 
 pub struct TextureManager {
     textures: HashMap<String, Texture>,
-    atlases: Vec<atlas::Atlas>,
-
-    pending_uploads: Vec<(i32, atlas::Rect, Vec<u8>)>,
 }
 
 impl TextureManager {
     fn new() -> TextureManager {
         let mut tm = TextureManager {
             textures: HashMap::new(),
-            atlases: Vec::new(),
-            pending_uploads: Vec::new(),
-
         };
-        tm.add_defaults();
         tm
-    }
-
-    fn add_defaults(&mut self) {
-        self.put_texture("steven",
-                         "missing_texture",
-                         2,
-                         2,
-                         vec![
-            0, 0, 0, 255,
-            255, 0, 255, 255,
-            255, 0, 255, 255,
-            0, 0, 0, 255,
-        ]);
-        self.put_texture("steven",
-                         "solid",
-                         1,
-                         1,
-                         vec![
-            255, 255, 255, 255,
-        ]);
-    }
-
-    fn put_texture(&mut self,
-                   plugin: &str,
-                   name: &str,
-                   width: u32,
-                   height: u32,
-                   data: Vec<u8>)
-                   -> Texture {
-        let (atlas, rect) = self.find_free(width as usize, height as usize);
-        self.pending_uploads.push((atlas, rect, data));
-
-        let mut full_name = String::new();
-        full_name.push_str(plugin);
-        full_name.push_str(":");
-        full_name.push_str(name);
-
-        let tex = Texture {
-            name: full_name.clone(),
-            atlas,
-            x: rect.x,
-            y: rect.y,
-            width: rect.width,
-            height: rect.height,
-            rel_x: 0.0,
-            rel_y: 0.0,
-            rel_width: 1.0,
-            rel_height: 1.0,
-            is_rel: false,
-        };
-        self.textures.insert(full_name, tex.clone());
-        tex
-    }
-
-    fn find_free(&mut self, width: usize, height: usize) -> (i32, atlas::Rect) {
-        let mut index = 0;
-        for atlas in &mut self.atlases {
-            if let Some(rect) = atlas.add(width, height) {
-                return (index, rect);
-            }
-            index += 1;
-        }
-        let mut atlas = atlas::Atlas::new(ATLAS_SIZE, ATLAS_SIZE);
-        let rect = atlas.add(width, height);
-        self.atlases.push(atlas);
-        (index, rect.unwrap())
     }
 }
 
