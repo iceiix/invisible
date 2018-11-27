@@ -40,7 +40,7 @@ fn main() {
 /*
     let (res, _resui) = resources::Manager::new();
     let resource_manager = Arc::new(RwLock::new(res));
-
+*/
     let sdl = sdl2::init().unwrap();
     let sdl_video = sdl.video().unwrap();
     let window = sdl2::video::WindowBuilder::new(&sdl_video, "Steven", 854, 480)
@@ -62,19 +62,19 @@ fn main() {
     let vsync = true;
     sdl_video.gl_set_swap_interval(if vsync { 1 } else { 0 });
 
-
+/*
     let renderer = render::Renderer::new(resource_manager.clone());
-
+*/
     let mut game = Game {
-        renderer,
+        //TODO renderer,
         should_close: false,
         sdl,
     };
-    game.renderer.camera.pos = cgmath::Point3::new(0.5, 13.2, 0.5);
-
+    //TODO game.renderer.camera.pos = cgmath::Point3::new(0.5, 13.2, 0.5);
     let mut events = game.sdl.event_pump().unwrap();
-    let mut sun_model = sun::SunModel::new(&mut game.renderer);
+    //let mut sun_model = sun::SunModel::new(&mut game.renderer);
     while !game.should_close {
+        /*
         sun_model.tick(&mut game.renderer, 0.0, 0);
 
         game.renderer.update_camera();
@@ -86,6 +86,7 @@ fn main() {
         game.renderer.camera.pos.z = 90.9279311085242;
  
         game.renderer.tick();
+        */
 
         window.gl_swap_window();
 
@@ -93,7 +94,6 @@ fn main() {
             handle_window_event(&mut game, event);
         }
     }
-*/
 }
 
 fn handle_window_event( game: &mut Game,
