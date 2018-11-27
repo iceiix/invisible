@@ -35,12 +35,6 @@ const ATLAS_SIZE: usize = 1024;
 // TEMP
 const NUM_SAMPLES: i32 = 2;
 
-pub struct Camera {
-    pub pos: cgmath::Point3<f64>,
-    pub yaw: f64,
-    pub pitch: f64,
-}
-
 pub struct Renderer {
     resource_version: usize,
     textures: Arc<RwLock<TextureManager>>,
@@ -51,7 +45,6 @@ pub struct Renderer {
     trans_shader: TransShader,
 
 
-    pub camera: Camera,
     perspective_matrix: cgmath::Matrix4<f32>,
     camera_matrix: cgmath::Matrix4<f32>,
     pub frustum: collision::Frustum<f32>,
@@ -103,11 +96,6 @@ impl Renderer {
             width: 0,
             height: 0,
 
-            camera: Camera {
-                pos: cgmath::Point3::new(0.0, 0.0, 0.0),
-                yaw: 0.0,
-                pitch: ::std::f64::consts::PI,
-            },
             perspective_matrix: cgmath::Matrix4::identity(),
             camera_matrix: cgmath::Matrix4::identity(),
             frustum: collision::Frustum::from_matrix4(cgmath::Matrix4::identity()).unwrap(),
@@ -139,18 +127,18 @@ impl Renderer {
 
         self.init_trans(width, height);
 
-        self.camera.yaw = -7.2697720829739465;
-        self.camera.pitch = 2.9733976253414633;
-        self.camera.pos.x = -208.76533603647485;
-        self.camera.pos.y = 65.62010000000001;
-        self.camera.pos.z = 90.9279311085242;
+        let yaw: f64 = -8.0;
+        let pitch: f64 = 3.0;
+        let x: f64 = -200.0;
+        let y: f64 = 65.0;
+        let z: f64 = 90.0;
 
         self.view_vector = cgmath::Vector3::new(
-            ((self.camera.yaw - PI64/2.0).cos() * -self.camera.pitch.cos()) as f32,
-            (-self.camera.pitch.sin()) as f32,
-            (-(self.camera.yaw - PI64/2.0).sin() * -self.camera.pitch.cos()) as f32
+            ((yaw - PI64/2.0).cos() * -pitch.cos()) as f32,
+            (-pitch.sin()) as f32,
+            (-(yaw - PI64/2.0).sin() * -pitch.cos()) as f32
         );
-        let camera = cgmath::Point3::new(-self.camera.pos.x as f32, -self.camera.pos.y as f32, self.camera.pos.z as f32);
+        let camera = cgmath::Point3::new(-x as f32, -y as f32, z as f32);
         let camera_matrix = cgmath::Matrix4::look_at(
             camera,
             camera + cgmath::Point3::new(-self.view_vector.x, -self.view_vector.y, self.view_vector.z).to_vec(),

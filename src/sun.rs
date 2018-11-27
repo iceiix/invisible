@@ -31,15 +31,19 @@ impl SunModel {
         let ox = (time * PI).cos() * 300.0;
         let oy = (time * PI).sin() * 300.0;
 
+        let x: f64 = 0.5;
+        let y: f64 = 13.2;
+        let z: f64 = 0.5;
+
         {
             let moon = renderer.model.get_model(self.moon).unwrap();
             moon.matrix[0] = Matrix4::from(Decomposed {
                 scale: 1.0,
                 rot: Quaternion::from_angle_z(Rad((PI - (time * PI)) as f32)),
                 disp: Vector3::new(
-                    (renderer.camera.pos.x - ox) as f32,
-                    -(renderer.camera.pos.y - oy) as f32,
-                    renderer.camera.pos.z as f32,
+                    (x - ox) as f32,
+                    -(y - oy) as f32,
+                    z as f32,
                 ),
             });
         }
