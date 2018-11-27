@@ -15,18 +15,13 @@
 #![recursion_limit="300"]
 
 pub mod gl;
-pub mod server;
 pub mod resources;
 pub mod render;
 pub mod types;
-/*
-pub mod server;
-pub mod model;
-*/
+pub mod sun;
 
 use std::sync::{Arc, RwLock};
 use sdl2::Sdl;
-use crate::server::sun;
 
 pub struct Game {
     renderer: render::Renderer,
