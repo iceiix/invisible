@@ -16,9 +16,6 @@ use crate::render::glsl;
 use crate::gl;
 
 pub fn add_shaders(reg: &mut glsl::Registry) {
-    reg.register("ui_vertex", include_str!("shaders/ui_vertex.glsl"));
-    reg.register("ui_frag", include_str!("shaders/ui_frag.glsl"));
-
     reg.register("trans_vertex", include_str!("shaders/trans_vertex.glsl"));
     reg.register("trans_frag", include_str!("shaders/trans_frag.glsl"));
 
