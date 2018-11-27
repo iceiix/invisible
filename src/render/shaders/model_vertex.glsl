@@ -18,7 +18,5 @@ out float vAtlas;
 out float vID;
 out vec3 vLighting;
 
-#include get_light
-
 void main() {
 }

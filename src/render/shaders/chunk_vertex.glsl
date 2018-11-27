@@ -16,8 +16,6 @@ out vec2 vTextureOffset;
 out float vAtlas;
 out vec3 vLighting;
 
-#include get_light
-
 void main() {
     vec3 pos = vec3(aPosition.x, -aPosition.y, aPosition.z);
     vec3 o = vec3(offset.x, -offset.y / 4096.0, offset.z);
