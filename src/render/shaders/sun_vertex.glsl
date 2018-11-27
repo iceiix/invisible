@@ -4,7 +4,6 @@ in int id;
 uniform mat4 perspectiveMatrix;
 uniform mat4 cameraMatrix;
 uniform mat4 modelMatrix[10];
-uniform vec2 lighting;
 
 void main() {
 	vec3 pos = vec3(aPosition.x, -aPosition.y, aPosition.z);
