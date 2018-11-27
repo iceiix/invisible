@@ -20,7 +20,6 @@ pub mod model;
 
 use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
-use crate::resources;
 use crate::gl;
 use image;
 use image::{GenericImageView};
@@ -44,7 +43,6 @@ pub struct Camera {
 
 pub struct Renderer {
     resource_version: usize,
-    pub resources: Arc<RwLock<resources::Manager>>,
     textures: Arc<RwLock<TextureManager>>,
     pub model: model::Manager,
 
@@ -68,10 +66,8 @@ pub struct Renderer {
 }
 
 impl Renderer {
-    pub fn new(res: Arc<RwLock<resources::Manager>>) -> Renderer {
-        let version = {
-            res.read().unwrap().version()
-        };
+    pub fn new() -> Renderer {
+        let version = 1; 
         let tex = gl::Texture::new();
         tex.bind(gl::TEXTURE_2D_ARRAY);
         tex.image_3d(gl::TEXTURE_2D_ARRAY,
@@ -100,7 +96,6 @@ impl Renderer {
             resource_version: version,
             model: model::Manager::new(&greg),
             textures,
-            resources: res,
             gl_texture: tex,
 
             trans_shader,

@@ -15,12 +15,10 @@
 #![recursion_limit="300"]
 
 pub mod gl;
-pub mod resources;
 pub mod render;
 pub mod types;
 pub mod sun;
 
-use std::sync::{Arc, RwLock};
 use sdl2::Sdl;
 
 pub struct Game {
@@ -31,9 +29,6 @@ pub struct Game {
 
 fn main() {
     println!("Starting steven");
-
-    let res = resources::Manager::new();
-    let resource_manager = Arc::new(RwLock::new(res));
 
     let sdl = sdl2::init().unwrap();
     let sdl_video = sdl.video().unwrap();
@@ -56,7 +51,7 @@ fn main() {
     let vsync = true;
     sdl_video.gl_set_swap_interval(if vsync { 1 } else { 0 });
 
-    let renderer = render::Renderer::new(resource_manager.clone());
+    let renderer = render::Renderer::new();
     let mut game = Game {
         renderer,
         should_close: false,
