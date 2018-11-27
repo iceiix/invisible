@@ -18,6 +18,7 @@
 pub mod macros;
 
 pub mod gl;
+pub mod server;
 /* TODO
 pub mod render;
 pub mod server;
@@ -26,7 +27,7 @@ pub mod model;
 
 use std::sync::{Arc, RwLock};
 use sdl2::Sdl;
-//TODO use crate::server::sun;
+use crate::server::sun;
 
 pub struct Game {
     //TODO renderer: render::Renderer,
