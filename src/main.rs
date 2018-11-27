@@ -14,7 +14,6 @@
 
 pub mod gl;
 pub mod render;
-pub mod types;
 pub mod sun;
 
 use sdl2::Sdl;

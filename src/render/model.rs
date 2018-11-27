@@ -5,8 +5,6 @@ use crate::gl;
 use cgmath::{Matrix4, SquareMatrix};
 use collision::{Frustum};
 use std::collections::HashMap;
-use std::hash::BuildHasherDefault;
-use crate::types::hash::FNVHash;
 use byteorder::{WriteBytesExt, NativeEndian};
 
 pub struct Manager {
@@ -49,7 +47,7 @@ impl Manager {
     pub fn add_collection(&mut self, vert: &str, frag: &str) -> CollectionKey {
         let collection = Collection {
             shader: ModelShader::new_manual(vert, frag),
-            models: HashMap::with_hasher(BuildHasherDefault::default()),
+            models: HashMap::new(),
             next_id: 0,
         };
         self.collections.push(collection);
@@ -193,7 +191,7 @@ impl Manager {
 struct Collection {
     shader: ModelShader,
 
-    models: HashMap<ModelKey, Model, BuildHasherDefault<FNVHash>>,
+    models: HashMap<ModelKey, Model>,
 
     next_id: usize,
 }

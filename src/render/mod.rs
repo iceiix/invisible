@@ -27,9 +27,6 @@ use byteorder::{WriteBytesExt, NativeEndian};
 use cgmath::prelude::*;
 use collision;
 
-use std::hash::BuildHasherDefault;
-use crate::types::hash::FNVHash;
-
 const ATLAS_SIZE: usize = 1024;
 
 // TEMP
@@ -308,23 +305,23 @@ impl TransInfo {
 }
 
 pub struct TextureManager {
-    textures: HashMap<String, Texture, BuildHasherDefault<FNVHash>>,
+    textures: HashMap<String, Texture>,
     atlases: Vec<atlas::Atlas>,
 
     pending_uploads: Vec<(i32, atlas::Rect, Vec<u8>)>,
 
-    dynamic_textures: HashMap<String, (Texture, image::DynamicImage), BuildHasherDefault<FNVHash>>,
+    dynamic_textures: HashMap<String, (Texture, image::DynamicImage)>,
     free_dynamics: Vec<Texture>,
 }
 
 impl TextureManager {
     fn new() -> TextureManager {
         let mut tm = TextureManager {
-            textures: HashMap::with_hasher(BuildHasherDefault::default()),
+            textures: HashMap::new(),
             atlases: Vec::new(),
             pending_uploads: Vec::new(),
 
-            dynamic_textures: HashMap::with_hasher(BuildHasherDefault::default()),
+            dynamic_textures: HashMap::new(),
             free_dynamics: Vec::new(),
         };
         tm.add_defaults();
