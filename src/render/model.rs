@@ -8,10 +8,7 @@ use std::collections::HashMap;
 use std::hash::BuildHasherDefault;
 use std::sync::{Arc, RwLock};
 use crate::types::hash::FNVHash;
-//TODO use crate::shared::Direction;
 use byteorder::{WriteBytesExt, NativeEndian};
-//TODO use crate::model::BlockVertex;
-//TODO use crate::format::{self, Component};
 
 pub struct Manager {
     collections: Vec<Collection>,
