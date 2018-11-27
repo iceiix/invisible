@@ -84,8 +84,6 @@ impl Manager {
                 // Per a part
                 matrix: Vec::with_capacity(parts.len()),
                 colors: Vec::with_capacity(parts.len()),
-                block_light: 15.0,
-                sky_light: 15.0,
 
                 array,
                 buffer,
@@ -167,7 +165,7 @@ impl Manager {
 
             for model in collection.models.values() {
                 model.array.bind();
-                collection.shader.lighting.map(|v| v.set_float2(model.block_light, model.sky_light));
+                collection.shader.lighting.map(|v| v.set_float2(0.0, 0.0));
                 collection.shader.model_matrix.map(|v| v.set_matrix4_multi(&model.matrix));
                 collection.shader.color_mul.map(|v| v.set_float_mutli_raw(model.colors.as_ptr() as *const _, model.colors.len()));
 //println!("about to draw model {:?} {:?}", model.count, self.index_type);
@@ -189,8 +187,6 @@ pub struct Model {
     // Per a part
     pub matrix: Vec<Matrix4<f32>>,
     pub colors: Vec<[f32; 4]>,
-    pub block_light: f32,
-    pub sky_light: f32,
 
     array: gl::VertexArray,
     buffer: gl::Buffer,
