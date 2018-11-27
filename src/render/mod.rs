@@ -141,7 +141,6 @@ impl Renderer {
     }
 
     fn init_trans(&mut self, width: u32, height: u32) {
-        self.trans = None;
         self.trans = Some(TransInfo::new(width, height, &self.trans_shader));
     }
 
