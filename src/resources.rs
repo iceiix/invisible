@@ -19,7 +19,6 @@ pub trait Pack: Sync + Send {
 }
 
 pub struct Manager {
-    packs: Vec<Box<Pack>>,
     version: usize,
 
 }
@@ -29,7 +28,6 @@ unsafe impl Sync for Manager {}
 impl Manager {
     pub fn new() -> Manager {
         Manager {
-            packs: Vec::new(),
             version: 0,
         }
     }
@@ -40,25 +38,12 @@ impl Manager {
         self.version
     }
 
-    pub fn open(&self, plugin: &str, name: &str) -> Option<Box<io::Read>> {
-        let path = format!("assets/{}/{}", plugin, name);
-        for pack in self.packs.iter().rev() {
-            if let Some(val) = pack.open(&path) {
-                return Some(val);
-            }
-        }
+    pub fn open(&self, _plugin: &str, _name: &str) -> Option<Box<io::Read>> {
         None
     }
 
-    pub fn open_all(&self, plugin: &str, name: &str) -> Vec<Box<io::Read>> {
-        let mut ret = Vec::new();
-        let path = format!("assets/{}/{}", plugin, name);
-        for pack in self.packs.iter().rev() {
-            if let Some(val) = pack.open(&path) {
-                ret.push(val);
-            }
-        }
-        ret
+    pub fn open_all(&self, _plugin: &str, _name: &str) -> Vec<Box<io::Read>> {
+        Vec::new()
     }
 }
 
