@@ -34,8 +34,6 @@ pub struct Renderer {
     camera_matrix: cgmath::Matrix4<f32>,
     pub view_vector: cgmath::Vector3<f32>,
 
-    pub frame_id: u32,
-
     trans: Option<TransInfo>,
 }
 
@@ -54,8 +52,6 @@ impl Renderer {
             perspective_matrix: cgmath::Matrix4::identity(),
             camera_matrix: cgmath::Matrix4::identity(),
             view_vector: cgmath::Vector3::zero(),
-
-            frame_id: 1,
 
             trans: None,
         }
@@ -122,8 +118,6 @@ impl Renderer {
         trans.draw(&self.trans_shader);
 
         gl::check_gl_error();
-
-        self.frame_id = self.frame_id.wrapping_add(1);
     }
 
     fn init_trans(&mut self, width: u32, height: u32) {
