@@ -22,7 +22,6 @@ use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
 use crate::gl;
 use image;
-use image::{GenericImageView};
 use byteorder::{WriteBytesExt, NativeEndian};
 use cgmath::prelude::*;
 use collision;
@@ -157,17 +156,13 @@ impl Renderer {
         self.trans = Some(TransInfo::new(width, height, &self.trans_shader));
     }
 
-    pub fn get_textures(&self) -> Arc<RwLock<TextureManager>> {
-        self.textures.clone()
-    }
-
     pub fn get_textures_ref(&self) -> &RwLock<TextureManager> {
         &self.textures
     }
 
-    pub fn get_texture(textures: &RwLock<TextureManager>, name: &str) -> Texture {
+    pub fn get_texture(_textures: &RwLock<TextureManager>, name: &str) -> Texture {
         return Texture {
-            name: "missing".to_owned(),
+            name: name.to_owned(),
             atlas: 0,
             x: 0,
             y: 0,
@@ -179,24 +174,6 @@ impl Renderer {
             rel_height: 1.0,
             is_rel: false,
         };
-
-        let tex = {
-            textures.read().unwrap().get_texture(name)
-        };
-        match tex {
-            Some(val) => val,
-            None => {
-                let mut t = textures.write().unwrap();
-                // Make sure it hasn't already been loaded since we switched
-                // locks.
-                if let Some(val) = t.get_texture(name) {
-                    val
-                } else {
-                    t.load_texture(name);
-                    t.get_texture(name).unwrap()
-                }
-            }
-        }
     }
 }
 
@@ -323,9 +300,6 @@ pub struct TextureManager {
     atlases: Vec<atlas::Atlas>,
 
     pending_uploads: Vec<(i32, atlas::Rect, Vec<u8>)>,
-
-    dynamic_textures: HashMap<String, (Texture, image::DynamicImage)>,
-    free_dynamics: Vec<Texture>,
 }
 
 impl TextureManager {
@@ -335,8 +309,6 @@ impl TextureManager {
             atlases: Vec::new(),
             pending_uploads: Vec::new(),
 
-            dynamic_textures: HashMap::new(),
-            free_dynamics: Vec::new(),
         };
         tm.add_defaults();
         tm
@@ -360,23 +332,6 @@ impl TextureManager {
                          vec![
             255, 255, 255, 255,
         ]);
-    }
-
-    fn get_texture(&self, name: &str) -> Option<Texture> {
-        if let Some(_) = name.find(':') {
-            self.textures.get(name).cloned()
-        } else {
-            self.textures.get(&format!("minecraft:{}", name)).cloned()
-        }
-    }
-
-    fn load_texture(&mut self, name: &str) {
-        let (plugin, name) = if let Some(pos) = name.find(':') {
-            (&name[..pos], &name[pos + 1..])
-        } else {
-            ("minecraft", name)
-        };
-        self.insert_texture_dummy(plugin, name);
     }
 
     fn put_texture(&mut self,
@@ -423,77 +378,6 @@ impl TextureManager {
         let rect = atlas.add(width, height);
         self.atlases.push(atlas);
         (index, rect.unwrap())
-    }
-
-    fn insert_texture_dummy(&mut self, plugin: &str, name: &str) -> Texture {
-        let missing = self.get_texture("steven:missing_texture").unwrap();
-
-        let mut full_name = String::new();
-        full_name.push_str(plugin);
-        full_name.push_str(":");
-        full_name.push_str(name);
-
-        let t = Texture {
-            name: full_name.to_owned(),
-            atlas: missing.atlas,
-            x: missing.x,
-            y: missing.y,
-            width: missing.width,
-            height: missing.height,
-            rel_x: 0.0,
-            rel_y: 0.0,
-            rel_width: 1.0,
-            rel_height: 1.0,
-            is_rel: false,
-        };
-        self.textures.insert(full_name.to_owned(), t.clone());
-        t
-    }
-
-    pub fn put_dynamic(&mut self, name: &str, img: image::DynamicImage) -> Texture {
-        use std::mem;
-        let (width, height) = img.dimensions();
-        let (width, height) = (width as usize, height as usize);
-        let mut rect_pos = None;
-        for (i, r) in self.free_dynamics.iter().enumerate() {
-            if r.width == width && r.height == height {
-                rect_pos = Some(i);
-                break;
-            } else if r.width >= width && r.height >= height {
-                rect_pos = Some(i);
-            }
-        }
-        let data = img.to_rgba().into_vec();
-
-        if let Some(rect_pos) = rect_pos {
-            let mut tex = self.free_dynamics.remove(rect_pos);
-            let rect = atlas::Rect {
-                x: tex.x,
-                y: tex.y,
-                width,
-                height,
-            };
-            self.pending_uploads.push((tex.atlas, rect, data));
-            let mut t = tex.relative(0.0, 0.0, (width as f32) / (tex.width as f32), (height as f32) / (tex.height as f32));
-            let old_name = mem::replace(&mut tex.name, format!("steven-dynamic:{}", name));
-            self.dynamic_textures.insert(name.to_owned(), (tex.clone(), img));
-            // We need to rename the texture itself so that get_texture calls
-            // work with the new name
-            let mut old = self.textures.remove(&old_name).unwrap();
-            old.name = format!("steven-dynamic:{}", name);
-            t.name = old.name.clone();
-            self.textures.insert(format!("steven-dynamic:{}", name), old);
-            t
-        } else {
-            let tex = self.put_texture("steven-dynamic", name, width as u32, height as u32, data);
-            self.dynamic_textures.insert(name.to_owned(), (tex.clone(), img));
-            tex
-        }
-    }
-
-    pub fn remove_dynamic(&mut self, name: &str) {
-        let desc = self.dynamic_textures.remove(name).unwrap();
-        self.free_dynamics.push(desc.0);
     }
 }
 
