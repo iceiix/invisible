@@ -59,13 +59,6 @@ fn main() {
         sun_model.tick(&mut game.renderer, 0.0, 0);
 
         game.renderer.update_camera();
-
-        game.renderer.camera.yaw = -7.2697720829739465;
-        game.renderer.camera.pitch = 2.9733976253414633;
-        game.renderer.camera.pos.x = -208.76533603647485;
-        game.renderer.camera.pos.y = 65.62010000000001;
-        game.renderer.camera.pos.z = 90.9279311085242;
- 
         game.renderer.tick();
 
         window.gl_swap_window();
