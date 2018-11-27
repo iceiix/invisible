@@ -37,13 +37,5 @@ impl Manager {
     pub fn version(&self) -> usize {
         self.version
     }
-
-    pub fn open(&self, _plugin: &str, _name: &str) -> Option<Box<io::Read>> {
-        None
-    }
-
-    pub fn open_all(&self, _plugin: &str, _name: &str) -> Vec<Box<io::Read>> {
-        Vec::new()
-    }
 }
 

@@ -395,7 +395,6 @@ impl TransInfo {
 pub struct TextureManager {
     textures: HashMap<String, Texture, BuildHasherDefault<FNVHash>>,
     version: usize,
-    resources: Arc<RwLock<resources::Manager>>,
     atlases: Vec<atlas::Atlas>,
 
     pending_uploads: Vec<(i32, atlas::Rect, Vec<u8>)>,
@@ -405,14 +404,10 @@ pub struct TextureManager {
 }
 
 impl TextureManager {
-    fn new(res: Arc<RwLock<resources::Manager>>) -> TextureManager {
+    fn new(_res: Arc<RwLock<resources::Manager>>) -> TextureManager {
         let mut tm = TextureManager {
             textures: HashMap::with_hasher(BuildHasherDefault::default()),
-            version: {
-                let ver = res.read().unwrap().version();
-                ver
-            },
-            resources: res,
+            version: 1,
             atlases: Vec::new(),
             pending_uploads: Vec::new(),
 
@@ -457,17 +452,6 @@ impl TextureManager {
         } else {
             ("minecraft", name)
         };
-        let path = format!("textures/{}.png", name);
-        let res = self.resources.clone();
-        if let Some(mut val) = res.read().unwrap().open(plugin, &path) {
-            let mut data = Vec::new();
-            val.read_to_end(&mut data).unwrap();
-            if let Ok(img) = image::load_from_memory(&data) {
-                let (width, height) = img.dimensions();
-                self.put_texture(plugin, name, width, height, img.to_rgba().into_vec());
-                return;
-            }
-        }
         self.insert_texture_dummy(plugin, name);
     }
 
