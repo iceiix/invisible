@@ -21,7 +21,6 @@ use sdl2::event::Event;
 
 pub struct Game {
     renderer: render::Renderer,
-    should_close: bool,
     sdl: Sdl,
 }
 
@@ -49,12 +48,11 @@ fn main() {
     let renderer = render::Renderer::new();
     let mut game = Game {
         renderer,
-        should_close: false,
         sdl,
     };
     let mut events = game.sdl.event_pump().unwrap();
     let mut sun_model = sun::SunModel::new(&mut game.renderer);
-    'outer: while !game.should_close {
+    'outer: loop {
         sun_model.tick(&mut game.renderer);
 
         game.renderer.update_camera();
