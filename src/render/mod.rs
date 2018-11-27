@@ -150,7 +150,6 @@ struct TransInfo {
     fb_color: gl::Texture,
     _fb_depth: gl::Texture,
     trans: gl::Framebuffer,
-    accum: gl::Texture,
     _depth: gl::Texture,
 
     array: gl::VertexArray,
@@ -165,7 +164,6 @@ init_shader! {
             required position => "aPosition",
         },
         uniform = {
-            required accum => "taccum",
             required color => "tcolor",
         },
     }
@@ -175,13 +173,6 @@ impl TransInfo {
     pub fn new(width: u32, height: u32, shader: &TransShader) -> TransInfo {
         let trans = gl::Framebuffer::new();
         trans.bind();
-
-        let accum = gl::Texture::new();
-        accum.bind(gl::TEXTURE_2D);
-        accum.image_2d_ex(gl::TEXTURE_2D, 0, width, height, gl::RGBA16F, gl::RGBA, gl::FLOAT, None);
-        accum.set_parameter(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::LINEAR);
-        accum.set_parameter(gl::TEXTURE_2D, gl::TEXTURE_MAX_LEVEL, gl::LINEAR);
-        trans.texture_2d(gl::COLOR_ATTACHMENT_0, gl::TEXTURE_2D, &accum, 0);
 
         let trans_depth = gl::Texture::new();
         trans_depth.bind(gl::TEXTURE_2D);
@@ -228,7 +219,6 @@ impl TransInfo {
             fb_color,
             _fb_depth: fb_depth,
             trans,
-            accum,
             _depth: trans_depth,
 
             array,
@@ -238,13 +228,10 @@ impl TransInfo {
 
     fn draw(&mut self, shader: &TransShader) {
         gl::active_texture(0);
-        self.accum.bind(gl::TEXTURE_2D);
-        gl::active_texture(1);
         self.fb_color.bind(gl::TEXTURE_2D_MULTISAMPLE);
 
         shader.program.use_program();
-        shader.accum.set_int(0);
-        shader.color.set_int(1);
+        shader.color.set_int(0);
         self.array.bind();
         gl::draw_arrays(gl::TRIANGLES, 0, 6);
     }
