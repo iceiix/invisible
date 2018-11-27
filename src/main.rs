@@ -38,10 +38,10 @@ pub struct Game {
 
 fn main() {
     println!("Starting steven");
-/*
+
     let (res, _resui) = resources::Manager::new();
     let resource_manager = Arc::new(RwLock::new(res));
-*/
+
     let sdl = sdl2::init().unwrap();
     let sdl_video = sdl.video().unwrap();
     let window = sdl2::video::WindowBuilder::new(&sdl_video, "Steven", 854, 480)
