@@ -23,6 +23,7 @@ fn main() {
     let sdl_video = sdl.video().unwrap();
     let window = sdl2::video::WindowBuilder::new(&sdl_video, "Steven", 854, 480)
                             .opengl()
+                            .resizable()
                             .build()
                             .expect("Could not create sdl window.");
     let gl_attr = sdl_video.gl_attr();
