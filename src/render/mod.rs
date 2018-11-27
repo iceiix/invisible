@@ -12,21 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-mod atlas;
 pub mod glsl;
 #[macro_use]
 pub mod shaders;
 pub mod model;
 
-use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
 use crate::gl;
 use image;
 use byteorder::{WriteBytesExt, NativeEndian};
 use cgmath::prelude::*;
 use collision;
-
-const ATLAS_SIZE: usize = 1024;
 
 // TEMP
 const NUM_SAMPLES: i32 = 2;
@@ -296,15 +292,11 @@ impl TransInfo {
 }
 
 pub struct TextureManager {
-    textures: HashMap<String, Texture>,
 }
 
 impl TextureManager {
     fn new() -> TextureManager {
-        let mut tm = TextureManager {
-            textures: HashMap::new(),
-        };
-        tm
+        TextureManager {}
     }
 }
 
