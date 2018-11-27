@@ -1,3 +1,10 @@
+#![allow(clippy::new_without_default_derive)]
+#![allow(clippy::new_without_default)]
+#![allow(clippy::too_many_arguments)]
+#![allow(clippy::trivially_copy_pass_by_ref)]
+#![allow(clippy::get_unwrap)]
+#![allow(clippy::option_map_unit_fn)]
+#![allow(clippy::needless_pass_by_value)]
 // Copyright 2016 Matthew Collins
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
