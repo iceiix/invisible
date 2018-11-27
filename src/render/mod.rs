@@ -40,8 +40,6 @@ pub struct Renderer {
     textures: Arc<RwLock<TextureManager>>,
     pub model: model::Manager,
 
-    gl_texture: gl::Texture,
-
     trans_shader: TransShader,
 
 
@@ -61,20 +59,6 @@ pub struct Renderer {
 impl Renderer {
     pub fn new() -> Renderer {
         let version = 1; 
-        let tex = gl::Texture::new();
-        tex.bind(gl::TEXTURE_2D_ARRAY);
-        tex.image_3d(gl::TEXTURE_2D_ARRAY,
-                     0,
-                     ATLAS_SIZE as u32,
-                     ATLAS_SIZE as u32,
-                     1,
-                     gl::RGBA,
-                     gl::UNSIGNED_BYTE,
-                     &[0; ATLAS_SIZE * ATLAS_SIZE * 4]);
-        tex.set_parameter(gl::TEXTURE_2D_ARRAY, gl::TEXTURE_MAG_FILTER, gl::NEAREST);
-        tex.set_parameter(gl::TEXTURE_2D_ARRAY, gl::TEXTURE_MIN_FILTER, gl::NEAREST);
-        tex.set_parameter(gl::TEXTURE_2D_ARRAY, gl::TEXTURE_WRAP_S, gl::CLAMP_TO_EDGE);
-        tex.set_parameter(gl::TEXTURE_2D_ARRAY, gl::TEXTURE_WRAP_T, gl::CLAMP_TO_EDGE);
 
         let textures = TextureManager::new();
         let textures = Arc::new(RwLock::new(textures));
@@ -89,7 +73,6 @@ impl Renderer {
             resource_version: version,
             model: model::Manager::new(&greg),
             textures,
-            gl_texture: tex,
 
             trans_shader,
 
@@ -149,8 +132,6 @@ impl Renderer {
     }
 
     pub fn tick(&mut self) {
-        self.update_textures();
-
         let trans = self.trans.as_mut().unwrap();
         trans.main.bind();
 
@@ -175,38 +156,6 @@ impl Renderer {
         gl::check_gl_error();
 
         self.frame_id = self.frame_id.wrapping_add(1);
-    }
-
-    fn do_pending_textures(&mut self) {
-        let len = {
-            let tex = self.textures.read().unwrap();
-            tex.pending_uploads.len()
-        };
-        if len > 0 {
-            // Upload pending changes
-            let mut tex = self.textures.write().unwrap();
-            for upload in &tex.pending_uploads {
-                let atlas = upload.0;
-                let rect = upload.1;
-                let img = &upload.2;
-                self.gl_texture.sub_image_3d(gl::TEXTURE_2D_ARRAY,
-                                             0,
-                                             rect.x as u32,
-                                             rect.y as u32,
-                                             atlas as u32,
-                                             rect.width as u32,
-                                             rect.height as u32,
-                                             1,
-                                             gl::RGBA,
-                                             gl::UNSIGNED_BYTE,
-                                             &img[..]);
-            }
-            tex.pending_uploads.clear();
-        }
-    }
-
-    fn update_textures(&mut self) {
-        self.do_pending_textures();
     }
 
     fn init_trans(&mut self, width: u32, height: u32) {
