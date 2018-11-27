@@ -230,6 +230,48 @@ impl Renderer {
         self.trans = None;
         self.trans = Some(TransInfo::new(width, height, &self.trans_shader));
     }
+
+    pub fn get_textures(&self) -> Arc<RwLock<TextureManager>> {
+        self.textures.clone()
+    }
+
+    pub fn get_textures_ref(&self) -> &RwLock<TextureManager> {
+        &self.textures
+    }
+
+    pub fn check_texture(&self, tex: Texture) -> Texture {
+        if tex.version == self.resource_version {
+            tex
+        } else {
+            let mut new = Renderer::get_texture(&self.textures, &tex.name);
+            new.rel_x = tex.rel_x;
+            new.rel_y = tex.rel_y;
+            new.rel_width = tex.rel_width;
+            new.rel_height = tex.rel_height;
+            new.is_rel = tex.is_rel;
+            new
+        }
+    }
+
+    pub fn get_texture(textures: &RwLock<TextureManager>, name: &str) -> Texture {
+        let tex = {
+            textures.read().unwrap().get_texture(name)
+        };
+        match tex {
+            Some(val) => val,
+            None => {
+                let mut t = textures.write().unwrap();
+                // Make sure it hasn't already been loaded since we switched
+                // locks.
+                if let Some(val) = t.get_texture(name) {
+                    val
+                } else {
+                    t.load_texture(name);
+                    t.get_texture(name).unwrap()
+                }
+            }
+        }
+    }
 }
 
 struct TransInfo {
@@ -377,7 +419,175 @@ impl TextureManager {
             dynamic_textures: HashMap::with_hasher(BuildHasherDefault::default()),
             free_dynamics: Vec::new(),
         };
+        tm.add_defaults();
         tm
+    }
+
+    fn add_defaults(&mut self) {
+        self.put_texture("steven",
+                         "missing_texture",
+                         2,
+                         2,
+                         vec![
+            0, 0, 0, 255,
+            255, 0, 255, 255,
+            255, 0, 255, 255,
+            0, 0, 0, 255,
+        ]);
+        self.put_texture("steven",
+                         "solid",
+                         1,
+                         1,
+                         vec![
+            255, 255, 255, 255,
+        ]);
+    }
+
+    fn get_texture(&self, name: &str) -> Option<Texture> {
+        if let Some(_) = name.find(':') {
+            self.textures.get(name).cloned()
+        } else {
+            self.textures.get(&format!("minecraft:{}", name)).cloned()
+        }
+    }
+
+    fn load_texture(&mut self, name: &str) {
+        let (plugin, name) = if let Some(pos) = name.find(':') {
+            (&name[..pos], &name[pos + 1..])
+        } else {
+            ("minecraft", name)
+        };
+        let path = format!("textures/{}.png", name);
+        let res = self.resources.clone();
+        if let Some(mut val) = res.read().unwrap().open(plugin, &path) {
+            let mut data = Vec::new();
+            val.read_to_end(&mut data).unwrap();
+            if let Ok(img) = image::load_from_memory(&data) {
+                let (width, height) = img.dimensions();
+                self.put_texture(plugin, name, width, height, img.to_rgba().into_vec());
+                return;
+            }
+        }
+        self.insert_texture_dummy(plugin, name);
+    }
+
+    fn put_texture(&mut self,
+                   plugin: &str,
+                   name: &str,
+                   width: u32,
+                   height: u32,
+                   data: Vec<u8>)
+                   -> Texture {
+        let (atlas, rect) = self.find_free(width as usize, height as usize);
+        self.pending_uploads.push((atlas, rect, data));
+
+        let mut full_name = String::new();
+        full_name.push_str(plugin);
+        full_name.push_str(":");
+        full_name.push_str(name);
+
+        let tex = Texture {
+            name: full_name.clone(),
+            version: self.version,
+            atlas,
+            x: rect.x,
+            y: rect.y,
+            width: rect.width,
+            height: rect.height,
+            rel_x: 0.0,
+            rel_y: 0.0,
+            rel_width: 1.0,
+            rel_height: 1.0,
+            is_rel: false,
+        };
+        self.textures.insert(full_name, tex.clone());
+        tex
+    }
+
+    fn find_free(&mut self, width: usize, height: usize) -> (i32, atlas::Rect) {
+        let mut index = 0;
+        for atlas in &mut self.atlases {
+            if let Some(rect) = atlas.add(width, height) {
+                return (index, rect);
+            }
+            index += 1;
+        }
+        let mut atlas = atlas::Atlas::new(ATLAS_SIZE, ATLAS_SIZE);
+        let rect = atlas.add(width, height);
+        self.atlases.push(atlas);
+        (index, rect.unwrap())
+    }
+
+    fn insert_texture_dummy(&mut self, plugin: &str, name: &str) -> Texture {
+        let missing = self.get_texture("steven:missing_texture").unwrap();
+
+        let mut full_name = String::new();
+        full_name.push_str(plugin);
+        full_name.push_str(":");
+        full_name.push_str(name);
+
+        let t = Texture {
+            name: full_name.to_owned(),
+            version: self.version,
+            atlas: missing.atlas,
+            x: missing.x,
+            y: missing.y,
+            width: missing.width,
+            height: missing.height,
+            rel_x: 0.0,
+            rel_y: 0.0,
+            rel_width: 1.0,
+            rel_height: 1.0,
+            is_rel: false,
+        };
+        self.textures.insert(full_name.to_owned(), t.clone());
+        t
+    }
+
+    pub fn put_dynamic(&mut self, name: &str, img: image::DynamicImage) -> Texture {
+        use std::mem;
+        let (width, height) = img.dimensions();
+        let (width, height) = (width as usize, height as usize);
+        let mut rect_pos = None;
+        for (i, r) in self.free_dynamics.iter().enumerate() {
+            if r.width == width && r.height == height {
+                rect_pos = Some(i);
+                break;
+            } else if r.width >= width && r.height >= height {
+                rect_pos = Some(i);
+            }
+        }
+        let data = img.to_rgba().into_vec();
+
+        if let Some(rect_pos) = rect_pos {
+            let mut tex = self.free_dynamics.remove(rect_pos);
+            let rect = atlas::Rect {
+                x: tex.x,
+                y: tex.y,
+                width,
+                height,
+            };
+            self.pending_uploads.push((tex.atlas, rect, data));
+            let mut t = tex.relative(0.0, 0.0, (width as f32) / (tex.width as f32), (height as f32) / (tex.height as f32));
+            let old_name = mem::replace(&mut tex.name, format!("steven-dynamic:{}", name));
+            self.dynamic_textures.insert(name.to_owned(), (tex.clone(), img));
+            // We need to rename the texture itself so that get_texture calls
+            // work with the new name
+            let mut old = self.textures.remove(&old_name).unwrap();
+            old.name = format!("steven-dynamic:{}", name);
+            t.name = old.name.clone();
+            self.textures.insert(format!("steven-dynamic:{}", name), old);
+            t
+        } else {
+            let tex = self.put_texture("steven-dynamic", name, width as u32, height as u32, data);
+            self.dynamic_textures.insert(name.to_owned(), (tex.clone(), img));
+            tex
+        }
+    }
+
+    pub fn remove_dynamic(&mut self, name: &str) {
+        let desc = self.dynamic_textures.remove(name).unwrap();
+        self.free_dynamics.push(desc.0);
     }
 }
 

@@ -148,6 +148,13 @@ impl Manager {
             let _ = buffer.write_f32::<NativeEndian>(vert.x);
             let _ = buffer.write_f32::<NativeEndian>(vert.y);
             let _ = buffer.write_f32::<NativeEndian>(vert.z);
+            let _ = buffer.write_u16::<NativeEndian>(vert.texture.get_x() as u16);
+            let _ = buffer.write_u16::<NativeEndian>(vert.texture.get_y() as u16);
+            let _ = buffer.write_u16::<NativeEndian>(vert.texture.get_width() as u16);
+            let _ = buffer.write_u16::<NativeEndian>(vert.texture.get_height() as u16);
+            let _ = buffer.write_i16::<NativeEndian>(((vert.texture.get_width() as f64) * 16.0 * vert.texture_x) as i16);
+            let _ = buffer.write_i16::<NativeEndian>(((vert.texture.get_height() as f64) * 16.0 * vert.texture_y) as i16);
+            let _ = buffer.write_i16::<NativeEndian>(vert.texture.atlas as i16);
             let _ = buffer.write_i16::<NativeEndian>(0);
             let _ = buffer.write_u8(vert.r);
             let _ = buffer.write_u8(vert.g);
@@ -172,6 +179,17 @@ impl Manager {
         for collection in &mut self.collections {
             for (_, model) in &mut collection.models {
                 for vert in &mut model.verts {
+                    vert.texture = if vert.texture.version == version {
+                        vert.texture.clone()
+                    } else {
+                        let mut new = super::Renderer::get_texture(textures, &vert.texture.name);
+                        new.rel_x = vert.texture.rel_x;
+                        new.rel_y = vert.texture.rel_y;
+                        new.rel_width = vert.texture.rel_width;
+                        new.rel_height = vert.texture.rel_height;
+                        new.is_rel = vert.texture.is_rel;
+                        new
+                    };
                 }
                 Self::rebuild_model(model);
             }
@@ -230,6 +248,7 @@ pub struct Vertex {
     pub x: f32,
     pub y: f32,
     pub z: f32,
+    pub texture: super::Texture,
     pub texture_x: f64,
     pub texture_y: f64,
     pub r: u8,
