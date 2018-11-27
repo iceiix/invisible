@@ -1,0 +1,59 @@
+version: 1.0.{build}
+image: Visual Studio 2017
+clone_depth: 1
+platform:
+  - x64
+  - x86
+build_script:
+- cmd: >-
+    echo on
+
+    echo AddMessage "PLATFORM is %PLATFORM%"
+
+    if "%PLATFORM%" == "x86" set RUST_INSTALL=i686-pc-windows-msvc
+
+    if "%PLATFORM%" == "x64" set RUST_INSTALL=x86_64-pc-windows-msvc
+
+    echo AddMessage "platform is %platform%"
+
+    appveyor AddMessage "Platform rust: %RUST_INSTALL%"
+
+    appveyor DownloadFile "https://static.rust-lang.org/dist/rust-nightly-%RUST_INSTALL%.exe" -FileName rust-install.exe
+
+    "./rust-install.exe" /VERYSILENT /NORESTART /DIR="C:\Rust\"
+
+    SET PATH=%PATH%;C:\Rust\bin
+
+    rustc -V
+
+    cargo -V
+
+    appveyor DownloadFile https://www.libsdl.org/release/SDL2-devel-2.0.4-VC.zip -FileName sdl2-dev.zip
+
+    mkdir C:\sdl2
+
+    7z x sdl2-dev.zip -oC:\sdl2\ -y
+
+    cp C:\sdl2\SDL2-2.0.4\lib\%PLATFORM%\SDL2.lib C:\Rust\lib\rustlib\%RUST_INSTALL%\lib\SDL2.lib
+
+
+    cargo build
+
+    mkdir dist-debug
+
+    cp target\debug\invisible.exe dist-debug
+
+    cp C:\sdl2\SDL2-2.0.4\lib\%PLATFORM%\SDL2.dll dist-debug
+
+
+    cargo build --release
+
+    mkdir dist
+
+    cp target\release\invisible.exe dist
+
+    cp C:\sdl2\SDL2-2.0.4\lib\%PLATFORM%\SDL2.dll dist
+
+artifacts:
+- path: dist
+- path: dist-debug
