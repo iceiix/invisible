@@ -6,8 +6,6 @@ pub struct SunModel {
     moon: model::ModelKey,
 }
 
-const SIZE: f32 = 50.0;
-
 impl SunModel {
 
     pub fn new(renderer: &mut render::Renderer) -> SunModel {
@@ -34,10 +32,10 @@ impl SunModel {
         renderer.model.create_model(
             model::SUN,
             vec![vec![
-                model::Vertex{x: 0.0, y: -SIZE, z: -SIZE, texture_x: 0.0, texture_y: 0.0 + (1.0 / 2.0), texture: tex.clone(), r: 255, g: 255, b: 255, a: 0, id: 0},
-                model::Vertex{x: 0.0, y: SIZE, z: -SIZE, texture_x: 0.0, texture_y: 0.0, texture: tex.clone(), r: 255, g: 255, b: 255, a: 0, id: 0},
-                model::Vertex{x: 0.0, y: -SIZE, z: SIZE, texture_x: 0.0 + (1.0 / 4.0), texture_y: 0.0 + (1.0 / 2.0), texture: tex.clone(), r: 255, g: 255, b: 255, a: 0, id: 0},
-                model::Vertex{x: 0.0, y: SIZE, z: SIZE, texture_x: 0.0 + (1.0 / 4.0), texture_y: 0.0, texture: tex.clone(), r: 255, g: 255, b: 255, a: 0, id: 0}
+                model::Vertex{x: 0.0, y: -50.0, z: -50.0, texture_x: 0.0, texture_y: 0.0 + (1.0 / 2.0), texture: tex.clone(), r: 255, g: 255, b: 255, a: 0, id: 0},
+                model::Vertex{x: 0.0, y: 50.0, z: -50.0, texture_x: 0.0, texture_y: 0.0, texture: tex.clone(), r: 255, g: 255, b: 255, a: 0, id: 0},
+                model::Vertex{x: 0.0, y: -50.0, z: 50.0, texture_x: 0.0 + (1.0 / 4.0), texture_y: 0.0 + (1.0 / 2.0), texture: tex.clone(), r: 255, g: 255, b: 255, a: 0, id: 0},
+                model::Vertex{x: 0.0, y: 50.0, z: 50.0, texture_x: 0.0 + (1.0 / 4.0), texture_y: 0.0, texture: tex.clone(), r: 255, g: 255, b: 255, a: 0, id: 0}
             ]]
         )
     }
