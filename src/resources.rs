@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-extern crate steven_resources as internal;
-
 use std::io;
 
 pub trait Pack: Sync + Send {

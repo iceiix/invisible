@@ -192,7 +192,6 @@ dependencies = [
  "log 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "sdl2 0.31.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "steven_gl 0.0.1",
- "steven_resources 0.1.0",
 ]
 
 [[package]]
@@ -487,10 +486,6 @@ dependencies = [
  "khronos_api 2.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "libc 0.2.44 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
-
-[[package]]
-name = "steven_resources"
-version = "0.1.0"
 
 [[package]]
 name = "syn"
