@@ -20,21 +20,16 @@ pub mod model;
 
 use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
-use std::io::Write;
 use crate::resources;
 use crate::gl;
 use image;
-use image::{GenericImage, GenericImageView};
+use image::{GenericImageView};
 use byteorder::{WriteBytesExt, NativeEndian};
 use cgmath::prelude::*;
 use collision;
-use log::{error};
 
 use std::hash::BuildHasherDefault;
 use crate::types::hash::FNVHash;
-use std::sync::atomic::{AtomicIsize, Ordering};
-use std::thread;
-use std::sync::mpsc;
 
 const ATLAS_SIZE: usize = 1024;
 
@@ -112,7 +107,7 @@ impl Renderer {
         tex.set_parameter(gl::TEXTURE_2D_ARRAY, gl::TEXTURE_WRAP_S, gl::CLAMP_TO_EDGE);
         tex.set_parameter(gl::TEXTURE_2D_ARRAY, gl::TEXTURE_WRAP_T, gl::CLAMP_TO_EDGE);
 
-        let (textures, _skin_req, _skin_reply) = TextureManager::new(res.clone());
+        let textures = TextureManager::new(res.clone());
         let textures = Arc::new(RwLock::new(textures));
 
         let mut greg = glsl::Registry::new();
@@ -368,25 +363,6 @@ impl Renderer {
             }
         }
     }
-
-    pub fn get_skin(&self, textures: &RwLock<TextureManager>, url: &str) -> Texture {
-        let tex = {
-            textures.read().unwrap().get_skin(url)
-        };
-        match tex {
-            Some(val) => val,
-            None => {
-                let t = textures.write().unwrap();
-                // Make sure it hasn't already been loaded since we switched
-                // locks.
-                if let Some(val) = t.get_skin(url) {
-                    val
-                } else {
-                    t.get_skin(url).unwrap()
-                }
-            }
-        }
-    }
 }
 
 struct TransInfo {
@@ -517,17 +493,10 @@ pub struct TextureManager {
 
     dynamic_textures: HashMap<String, (Texture, image::DynamicImage), BuildHasherDefault<FNVHash>>,
     free_dynamics: Vec<Texture>,
-
-    skins: HashMap<String, AtomicIsize, BuildHasherDefault<FNVHash>>,
-
-    _skin_thread: thread::JoinHandle<()>,
 }
 
 impl TextureManager {
-    fn new(res: Arc<RwLock<resources::Manager>>) -> (TextureManager, mpsc::Sender<String>, mpsc::Receiver<(String, Option<image::DynamicImage>)>) {
-        let (tx, rx) = mpsc::channel();
-        let (stx, srx) = mpsc::channel();
-        let skin_thread = thread::spawn(|| Self::process_skins(srx, tx));
+    fn new(res: Arc<RwLock<resources::Manager>>) -> TextureManager {
         let mut tm = TextureManager {
             textures: HashMap::with_hasher(BuildHasherDefault::default()),
             version: {
@@ -540,12 +509,9 @@ impl TextureManager {
 
             dynamic_textures: HashMap::with_hasher(BuildHasherDefault::default()),
             free_dynamics: Vec::new(),
-            skins: HashMap::with_hasher(BuildHasherDefault::default()),
-
-            _skin_thread: skin_thread,
         };
         tm.add_defaults();
-        (tm, stx, rx)
+        tm
     }
 
     fn add_defaults(&mut self) {
@@ -566,126 +532,6 @@ impl TextureManager {
                          vec![
             255, 255, 255, 255,
         ]);
-    }
-
-    fn process_skins(recv: mpsc::Receiver<String>, reply: mpsc::Sender<(String, Option<image::DynamicImage>)>) {
-        use reqwest;
-        let client = reqwest::Client::new();
-        loop {
-            let hash = match recv.recv() {
-                Ok(val) => val,
-                Err(_) => return, // Most likely shutting down
-            };
-            match Self::obtain_skin(&client, &hash) {
-                Ok(img) => {
-                    let _ = reply.send((hash, Some(img)));
-                },
-                Err(err) => {
-                    error!("Failed to get skin {:?}: {}", hash, err);
-                    let _ = reply.send((hash, None));
-                },
-            }
-        }
-    }
-
-    fn obtain_skin(client: &::reqwest::Client, hash: &str) -> Result<image::DynamicImage, ::std::io::Error> {
-        use std::io::Read;
-        use std::fs;
-        use std::path::Path;
-        use std::io::{Error, ErrorKind};
-        let path = format!("skin-cache/{}/{}.png", &hash[..2], hash);
-        let cache_path = Path::new(&path);
-        fs::create_dir_all(cache_path.parent().unwrap())?;
-        let mut buf = vec![];
-        if fs::metadata(cache_path).is_ok() {
-            // We have a cached image
-            let mut file = fs::File::open(cache_path)?;
-            file.read_to_end(&mut buf)?;
-        } else {
-            // Need to download it
-            let url = &format!("http://textures.minecraft.net/texture/{}", hash);
-            let mut res = match client.get(url).send() {
-                Ok(val) => val,
-                Err(err) => {
-                    return Err(Error::new(ErrorKind::ConnectionAborted, err));
-                }
-            };
-            let mut buf = vec![];
-            match res.read_to_end(&mut buf) {
-                Ok(_) => {},
-                Err(err) => {
-                    // TODO: different error for failure to read?
-                    return Err(Error::new(ErrorKind::InvalidData, err));
-                }
-            }
-
-            // Save to cache
-            let mut file = fs::File::create(cache_path)?;
-            file.write_all(&buf)?;
-        }
-        let mut img = match image::load_from_memory(&buf) {
-            Ok(val) => val,
-            Err(err) => {
-                return Err(Error::new(ErrorKind::InvalidData, err));
-            }
-        };
-        let (_, height) = img.dimensions();
-        if height == 32 {
-            // Needs changing to the new format
-            let mut new = image::DynamicImage::new_rgba8(64, 64);
-            new.copy_from(&img, 0, 0);
-            for xx in 0 .. 4 {
-                for yy in 0 .. 16 {
-                    for section in 0 .. 4 {
-                        let os = match section {
-                            0 => 2,
-                            1 => 1,
-                            2 => 0,
-                            3 => 3,
-                            _ => unreachable!(),
-                        };
-                        new.put_pixel(16 + (3 - xx) + section * 4, 48 + yy, img.get_pixel(xx + os * 4, 16 + yy));
-                        new.put_pixel(32 + (3 - xx) + section * 4, 48 + yy, img.get_pixel(xx + 40 + os * 4, 16 + yy));
-                    }
-                }
-            }
-            img = new;
-        }
-        // Block transparent pixels in blacklisted areas
-        let blacklist = [
-            // X, Y, W, H
-            (0, 0, 32, 16),
-            (16, 16, 24, 16),
-            (0, 16, 16, 16),
-            (16, 48, 16, 16),
-            (32, 48, 16, 16),
-            (40, 16, 16, 16),
-        ];
-        for bl in blacklist.into_iter() {
-            for x in bl.0 .. (bl.0 + bl.2) {
-                for y in bl.1 .. (bl.1 + bl.3) {
-                    let mut col = img.get_pixel(x, y);
-                    col.data[3] = 255;
-                    img.put_pixel(x, y, col);
-                }
-            }
-        }
-        Ok(img)
-    }
-
-    fn get_skin(&self, url: &str) -> Option<Texture> {
-        let hash = &url["http://textures.minecraft.net/texture/".len()..];
-        if let Some(skin) = self.skins.get(hash) {
-            skin.fetch_add(1, Ordering::Relaxed);
-        }
-        self.get_texture(&format!("steven-dynamic:skin-{}", hash))
-    }
-
-    pub fn release_skin(&self, url: &str) {
-        let hash = &url["http://textures.minecraft.net/texture/".len()..];
-        if let Some(skin) = self.skins.get(hash) {
-            skin.fetch_sub(1, Ordering::Relaxed);
-        }
     }
 
     fn get_texture(&self, name: &str) -> Option<Texture> {
