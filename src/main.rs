@@ -70,12 +70,13 @@ fn main() {
         should_close: false,
         sdl,
     };
-    //TODO game.renderer.camera.pos = cgmath::Point3::new(0.5, 13.2, 0.5);
+    game.renderer.camera.pos = cgmath::Point3::new(0.5, 13.2, 0.5);
     let mut events = game.sdl.event_pump().unwrap();
     //let mut sun_model = sun::SunModel::new(&mut game.renderer);
     while !game.should_close {
         /*
         sun_model.tick(&mut game.renderer, 0.0, 0);
+        */
 
         game.renderer.update_camera();
 
@@ -86,7 +87,6 @@ fn main() {
         game.renderer.camera.pos.z = 90.9279311085242;
  
         game.renderer.tick();
-        */
 
         window.gl_swap_window();
 
