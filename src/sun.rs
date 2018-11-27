@@ -28,7 +28,7 @@ impl SunModel {
     }
 
     pub fn generate_moon(renderer: &mut render::Renderer) -> model::ModelKey {
-        let tex = render::Renderer::get_texture(renderer.get_textures_ref(), "environment/moon_phases");
+        let tex = render::Renderer::get_texture();
         renderer.model.create_model(
             model::SUN,
             vec![vec![

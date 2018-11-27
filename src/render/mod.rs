@@ -17,7 +17,6 @@ pub mod glsl;
 pub mod shaders;
 pub mod model;
 
-use std::sync::{Arc, RwLock};
 use crate::gl;
 use image;
 use byteorder::{WriteBytesExt, NativeEndian};
@@ -28,7 +27,6 @@ use collision;
 const NUM_SAMPLES: i32 = 2;
 
 pub struct Renderer {
-    textures: Arc<RwLock<TextureManager>>,
     pub model: model::Manager,
 
     trans_shader: TransShader,
@@ -50,9 +48,6 @@ pub struct Renderer {
 impl Renderer {
     pub fn new() -> Renderer {
 
-        let textures = TextureManager::new();
-        let textures = Arc::new(RwLock::new(textures));
-
         let mut greg = glsl::Registry::new();
         shaders::add_shaders(&mut greg);
 
@@ -61,7 +56,6 @@ impl Renderer {
 
         Renderer {
             model: model::Manager::new(&greg),
-            textures,
 
             trans_shader,
 
@@ -152,13 +146,10 @@ impl Renderer {
         self.trans = Some(TransInfo::new(width, height, &self.trans_shader));
     }
 
-    pub fn get_textures_ref(&self) -> &RwLock<TextureManager> {
-        &self.textures
-    }
-
-    pub fn get_texture(_textures: &RwLock<TextureManager>, name: &str) -> Texture {
+    // called by sun
+    pub fn get_texture() -> Texture {
         return Texture {
-            name: name.to_owned(),
+            name: "".to_owned(),
             atlas: 0,
             x: 0,
             y: 0,
@@ -288,15 +279,6 @@ impl TransInfo {
         shader.color.set_int(2);
         self.array.bind();
         gl::draw_arrays(gl::TRIANGLES, 0, 6);
-    }
-}
-
-pub struct TextureManager {
-}
-
-impl TextureManager {
-    fn new() -> TextureManager {
-        TextureManager {}
     }
 }
 
