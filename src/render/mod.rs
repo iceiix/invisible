@@ -166,6 +166,20 @@ impl Renderer {
     }
 
     pub fn get_texture(textures: &RwLock<TextureManager>, name: &str) -> Texture {
+        return Texture {
+            name: "missing".to_owned(),
+            atlas: 0,
+            x: 0,
+            y: 0,
+            width: 0,
+            height: 0,
+            rel_x: 0.0,
+            rel_y: 0.0,
+            rel_width: 1.0,
+            rel_height: 1.0,
+            is_rel: false,
+        };
+
         let tex = {
             textures.read().unwrap().get_texture(name)
         };
