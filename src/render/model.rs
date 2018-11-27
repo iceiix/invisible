@@ -146,8 +146,8 @@ impl Manager {
             let _ = buffer.write_u16::<NativeEndian>(0);
             let _ = buffer.write_u16::<NativeEndian>(0);
             let _ = buffer.write_u16::<NativeEndian>(0);
-            let _ = buffer.write_i16::<NativeEndian>(((0 as f64) * 16.0 * vert.texture_x) as i16);
-            let _ = buffer.write_i16::<NativeEndian>(((0 as f64) * 16.0 * vert.texture_y) as i16);
+            let _ = buffer.write_i16::<NativeEndian>(0);
+            let _ = buffer.write_i16::<NativeEndian>(0);
             let _ = buffer.write_i16::<NativeEndian>(0);
             let _ = buffer.write_i16::<NativeEndian>(0);
             let _ = buffer.write_u8(vert.r);
@@ -221,7 +221,6 @@ pub struct Vertex {
     pub x: f32,
     pub y: f32,
     pub z: f32,
-    pub texture: super::Texture,
     pub texture_x: f64,
     pub texture_y: f64,
     pub r: u8,
