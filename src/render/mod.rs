@@ -151,6 +151,7 @@ struct TransInfo {
     _fb_depth: gl::Texture,
     trans: gl::Framebuffer,
     accum: gl::Texture,
+    revealage: gl::Texture,
     _depth: gl::Texture,
 
     array: gl::VertexArray,
@@ -166,6 +167,7 @@ init_shader! {
         },
         uniform = {
             required accum => "taccum",
+            required revealage => "trevealage",
             required color => "tcolor",
         },
     }
@@ -182,6 +184,13 @@ impl TransInfo {
         accum.set_parameter(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::LINEAR);
         accum.set_parameter(gl::TEXTURE_2D, gl::TEXTURE_MAX_LEVEL, gl::LINEAR);
         trans.texture_2d(gl::COLOR_ATTACHMENT_0, gl::TEXTURE_2D, &accum, 0);
+
+        let revealage = gl::Texture::new();
+        revealage.bind(gl::TEXTURE_2D);
+        revealage.image_2d_ex(gl::TEXTURE_2D, 0, width, height, gl::R16F, gl::RED, gl::FLOAT, None);
+        revealage.set_parameter(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::LINEAR);
+        revealage.set_parameter(gl::TEXTURE_2D, gl::TEXTURE_MAX_LEVEL, gl::LINEAR);
+        trans.texture_2d(gl::COLOR_ATTACHMENT_1, gl::TEXTURE_2D, &revealage, 0);
 
         let trans_depth = gl::Texture::new();
         trans_depth.bind(gl::TEXTURE_2D);
@@ -229,6 +238,7 @@ impl TransInfo {
             _fb_depth: fb_depth,
             trans,
             accum,
+            revealage,
             _depth: trans_depth,
 
             array,
@@ -240,10 +250,13 @@ impl TransInfo {
         gl::active_texture(0);
         self.accum.bind(gl::TEXTURE_2D);
         gl::active_texture(1);
+        self.revealage.bind(gl::TEXTURE_2D);
+        gl::active_texture(2);
         self.fb_color.bind(gl::TEXTURE_2D_MULTISAMPLE);
 
         shader.program.use_program();
         shader.accum.set_int(0);
+        shader.revealage.set_int(1);
         shader.color.set_int(2);
         self.array.bind();
         gl::draw_arrays(gl::TRIANGLES, 0, 6);
