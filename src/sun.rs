@@ -31,10 +31,10 @@ impl SunModel {
         renderer.model.create_model(
             model::SUN,
             vec![vec![
-                model::Vertex{x: 0.0, y: -50.0, z: -50.0, texture_x: 0.0, texture_y: 0.0 + (1.0 / 2.0), r: 255, g: 255, b: 255, a: 0, id: 0},
-                model::Vertex{x: 0.0, y: 50.0, z: -50.0, texture_x: 0.0, texture_y: 0.0, r: 255, g: 255, b: 255, a: 0, id: 0},
-                model::Vertex{x: 0.0, y: -50.0, z: 50.0, texture_x: 0.0 + (1.0 / 4.0), texture_y: 0.0 + (1.0 / 2.0), r: 255, g: 255, b: 255, a: 0, id: 0},
-                model::Vertex{x: 0.0, y: 50.0, z: 50.0, texture_x: 0.0 + (1.0 / 4.0), texture_y: 0.0, r: 255, g: 255, b: 255, a: 0, id: 0}
+                model::Vertex{x: 0.0, y: -50.0, z: -50.0},
+                model::Vertex{x: 0.0, y: 50.0, z: -50.0},
+                model::Vertex{x: 0.0, y: -50.0, z: 50.0},
+                model::Vertex{x: 0.0, y: 50.0, z: 50.0},
             ]]
         )
     }

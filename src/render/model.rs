@@ -100,11 +100,10 @@ impl Manager {
                 verts: vec![],
             };
 
-            for (i, part) in parts.into_iter().enumerate() {
+            for (_i, part) in parts.into_iter().enumerate() {
                 model.matrix.push(Matrix4::identity());
                 model.colors.push([1.0, 1.0, 1.0, 1.0]);
-                for mut pp in part {
-                    pp.id = i as u8;
+                for pp in part {
                     model.verts.push(pp);
                 }
             }
@@ -150,11 +149,11 @@ impl Manager {
             let _ = buffer.write_i16::<NativeEndian>(0);
             let _ = buffer.write_i16::<NativeEndian>(0);
             let _ = buffer.write_i16::<NativeEndian>(0);
-            let _ = buffer.write_u8(vert.r);
-            let _ = buffer.write_u8(vert.g);
-            let _ = buffer.write_u8(vert.b);
-            let _ = buffer.write_u8(vert.a);
-            let _ = buffer.write_u8(vert.id);
+            let _ = buffer.write_u8(0);
+            let _ = buffer.write_u8(0);
+            let _ = buffer.write_u8(0);
+            let _ = buffer.write_u8(0);
+            let _ = buffer.write_u8(0);
             let _ = buffer.write_u8(0);
             let _ = buffer.write_u8(0);
             let _ = buffer.write_u8(0);
@@ -221,13 +220,6 @@ pub struct Vertex {
     pub x: f32,
     pub y: f32,
     pub z: f32,
-    pub texture_x: f64,
-    pub texture_y: f64,
-    pub r: u8,
-    pub g: u8,
-    pub b: u8,
-    pub a: u8,
-    pub id: u8,
 }
 
 init_shader! {
