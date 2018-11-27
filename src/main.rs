@@ -46,8 +46,6 @@ fn main() {
 
     gl::init(&sdl_video);
 
-    sdl_video.gl_set_swap_interval(1);
-
     let renderer = render::Renderer::new();
     let mut game = Game {
         renderer,
