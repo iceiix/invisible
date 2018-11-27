@@ -19,6 +19,7 @@ pub mod macros;
 
 pub mod gl;
 pub mod server;
+pub mod resources;
 /* TODO
 pub mod render;
 pub mod server;
