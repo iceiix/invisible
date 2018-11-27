@@ -14,13 +14,11 @@
 
 extern crate steven_resources as internal;
 
-use std::thread;
 use std::path;
 use std::io;
 use std::fs;
 use std::sync::mpsc;
 use std::sync::{Arc, Mutex};
-use std::collections::HashMap;
 use std::hash::BuildHasherDefault;
 
 pub trait Pack: Sync + Send {
@@ -31,14 +29,6 @@ pub struct Manager {
     packs: Vec<Box<Pack>>,
     version: usize,
 
-    vanilla_chan: Option<mpsc::Receiver<bool>>,
-    vanilla_assets_chan: Option<mpsc::Receiver<bool>>,
-    vanilla_progress: Arc<Mutex<Progress>>,
-}
-
-pub struct ManagerUI {
-    progress_ui: Vec<ProgressUI>,
-    num_tasks: isize,
 }
 
 struct ProgressUI {
@@ -63,17 +53,11 @@ struct Task {
 unsafe impl Sync for Manager {}
 
 impl Manager {
-    pub fn new() -> (Manager, ManagerUI) {
-        let mut m = Manager {
+    pub fn new() -> Manager {
+        Manager {
             packs: Vec::new(),
             version: 0,
-            vanilla_chan: None,
-            vanilla_assets_chan: None,
-            vanilla_progress: Arc::new(Mutex::new(Progress {
-                tasks: vec![],
-            })),
-        };
-        (m, ManagerUI { progress_ui: vec!{}, num_tasks: 0 })
+        }
     }
 
     /// Returns the 'version' of the manager. The version is
@@ -102,27 +86,6 @@ impl Manager {
         }
         ret
     }
-
-    fn add_pack(&mut self, pck: Box<Pack>) {
-    }
-
-    fn load_vanilla(&mut self) {
-    }
-
-    fn load_assets(&mut self) {
-    }
-
-    fn download_assets(&mut self) {
-    }
-
-    fn download_vanilla(&mut self) {
-    }
-
-    fn add_task(progress: &Arc<Mutex<Progress>>, name: &str, file: &str, length: u64) {
-    }
-
-    fn add_task_progress(progress: &Arc<Mutex<Progress>>, name: &str, file: &str, prog: u64) {
-    }
 }
 
 struct DirPack {
@@ -149,17 +112,3 @@ impl Pack for InternalPack {
     }
 }
 
-struct ProgressRead<'a, T> {
-    read: T,
-    progress: &'a Arc<Mutex<Progress>>,
-    task_name: String,
-    task_file: String,
-}
-
-impl <'a, T: io::Read> io::Read for ProgressRead<'a, T> {
-    fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
-        let size = self.read.read(buf)?;
-        Manager::add_task_progress(self.progress, &self.task_name, &self.task_file, size as u64);
-        Ok(size)
-    }
-}

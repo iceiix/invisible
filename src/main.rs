@@ -40,7 +40,7 @@ pub struct Game {
 fn main() {
     println!("Starting steven");
 
-    let (res, _resui) = resources::Manager::new();
+    let res = resources::Manager::new();
     let resource_manager = Arc::new(RwLock::new(res));
 
     let sdl = sdl2::init().unwrap();
