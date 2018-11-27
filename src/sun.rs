@@ -23,10 +23,6 @@ impl SunModel {
         });
     }
 
-    pub fn remove(&mut self, renderer: &mut render::Renderer) {
-        renderer.model.remove_model(self.moon);
-    }
-
     pub fn generate_moon(renderer: &mut render::Renderer) -> model::ModelKey {
         renderer.model.create_model(
             model::SUN,

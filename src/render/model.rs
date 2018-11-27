@@ -44,7 +44,7 @@ impl Manager {
         m
     }
 
-    pub fn add_collection(&mut self, vert: &str, frag: &str) -> CollectionKey {
+    fn add_collection(&mut self, vert: &str, frag: &str) -> CollectionKey {
         let collection = Collection {
             shader: ModelShader::new_manual(vert, frag),
             models: HashMap::new(),
@@ -125,11 +125,6 @@ impl Manager {
         collection.models.insert(key, model);
 
         key
-    }
-
-    pub fn remove_model(&mut self, key: ModelKey) {
-        let collection = &mut self.collections[(key.0).0];
-        collection.models.remove(&key);
     }
 
     fn rebuild_model(model: &mut Model) {
