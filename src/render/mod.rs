@@ -36,7 +36,6 @@ const ATLAS_SIZE: usize = 1024;
 const NUM_SAMPLES: i32 = 2;
 
 pub struct Renderer {
-    resource_version: usize,
     textures: Arc<RwLock<TextureManager>>,
     pub model: model::Manager,
 
@@ -58,7 +57,6 @@ pub struct Renderer {
 
 impl Renderer {
     pub fn new() -> Renderer {
-        let version = 1; 
 
         let textures = TextureManager::new();
         let textures = Arc::new(RwLock::new(textures));
@@ -70,7 +68,6 @@ impl Renderer {
         let trans_shader = TransShader::new(&greg);
 
         Renderer {
-            resource_version: version,
             model: model::Manager::new(&greg),
             textures,
 
@@ -169,20 +166,6 @@ impl Renderer {
 
     pub fn get_textures_ref(&self) -> &RwLock<TextureManager> {
         &self.textures
-    }
-
-    pub fn check_texture(&self, tex: Texture) -> Texture {
-        if tex.version == self.resource_version {
-            tex
-        } else {
-            let mut new = Renderer::get_texture(&self.textures, &tex.name);
-            new.rel_x = tex.rel_x;
-            new.rel_y = tex.rel_y;
-            new.rel_width = tex.rel_width;
-            new.rel_height = tex.rel_height;
-            new.is_rel = tex.is_rel;
-            new
-        }
     }
 
     pub fn get_texture(textures: &RwLock<TextureManager>, name: &str) -> Texture {
@@ -326,7 +309,6 @@ impl TransInfo {
 
 pub struct TextureManager {
     textures: HashMap<String, Texture, BuildHasherDefault<FNVHash>>,
-    version: usize,
     atlases: Vec<atlas::Atlas>,
 
     pending_uploads: Vec<(i32, atlas::Rect, Vec<u8>)>,
@@ -339,7 +321,6 @@ impl TextureManager {
     fn new() -> TextureManager {
         let mut tm = TextureManager {
             textures: HashMap::with_hasher(BuildHasherDefault::default()),
-            version: 1,
             atlases: Vec::new(),
             pending_uploads: Vec::new(),
 
@@ -404,7 +385,6 @@ impl TextureManager {
 
         let tex = Texture {
             name: full_name.clone(),
-            version: self.version,
             atlas,
             x: rect.x,
             y: rect.y,
@@ -444,7 +424,6 @@ impl TextureManager {
 
         let t = Texture {
             name: full_name.to_owned(),
-            version: self.version,
             atlas: missing.atlas,
             x: missing.x,
             y: missing.y,
@@ -510,7 +489,6 @@ impl TextureManager {
 #[derive(Clone, Debug)]
 pub struct Texture {
     pub name: String,
-    version: usize,
     pub atlas: i32,
     x: usize,
     y: usize,
@@ -559,7 +537,6 @@ impl Texture {
     pub fn relative(&self, x: f32, y: f32, width: f32, height: f32) -> Texture {
         Texture {
             name: self.name.clone(),
-            version: self.version,
             x: self.x,
             y: self.y,
             atlas: self.atlas,

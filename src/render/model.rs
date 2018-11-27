@@ -6,7 +6,6 @@ use cgmath::{Matrix4, SquareMatrix};
 use collision::{Frustum};
 use std::collections::HashMap;
 use std::hash::BuildHasherDefault;
-use std::sync::{Arc, RwLock};
 use crate::types::hash::FNVHash;
 use byteorder::{WriteBytesExt, NativeEndian};
 
@@ -169,27 +168,6 @@ impl Manager {
         } else {
             model.buffer.set_data(gl::ARRAY_BUFFER, &buffer, gl::DYNAMIC_DRAW);
             model.buffer_size = buffer.len();
-        }
-    }
-
-    pub fn rebuild_models(&mut self, version: usize, textures: &Arc<RwLock<super::TextureManager>>) {
-        for collection in &mut self.collections {
-            for (_, model) in &mut collection.models {
-                for vert in &mut model.verts {
-                    vert.texture = if vert.texture.version == version {
-                        vert.texture.clone()
-                    } else {
-                        let mut new = super::Renderer::get_texture(textures, &vert.texture.name);
-                        new.rel_x = vert.texture.rel_x;
-                        new.rel_y = vert.texture.rel_y;
-                        new.rel_width = vert.texture.rel_width;
-                        new.rel_height = vert.texture.rel_height;
-                        new.is_rel = vert.texture.is_rel;
-                        new
-                    };
-                }
-                Self::rebuild_model(model);
-            }
         }
     }
 
