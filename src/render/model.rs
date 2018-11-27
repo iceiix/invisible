@@ -69,15 +69,7 @@ impl Manager {
             let collection = &mut self.collections[ckey.0];
             collection.shader.program.use_program();
             collection.shader.position.map(|v| v.enable());
-            collection.shader.texture_info.map(|v| v.enable());
-            collection.shader.texture_offset.map(|v| v.enable());
-            collection.shader.color.map(|v| v.enable());
-            collection.shader.id.map(|v| v.enable());
             collection.shader.position.map(|v| v.vertex_pointer(3, gl::FLOAT, false, 36, 0));
-            collection.shader.texture_info.map(|v| v.vertex_pointer(4, gl::UNSIGNED_SHORT, false, 36, 12));
-            collection.shader.texture_offset.map(|v| v.vertex_pointer_int(3, gl::SHORT, 36, 20));
-            collection.shader.color.map(|v| v.vertex_pointer(4, gl::UNSIGNED_BYTE, true, 36, 28));
-            collection.shader.id.map(|v| v.vertex_pointer_int(1, gl::UNSIGNED_BYTE, 36, 32));
 
             let mut model = Model {
                 // Per a part
@@ -160,11 +152,9 @@ impl Manager {
             collection.shader.program.use_program();
             collection.shader.perspective_matrix.map(|v| v.set_matrix4(perspective_matrix));
             collection.shader.camera_matrix.map(|v| v.set_matrix4(camera_matrix));
-            collection.shader.texture.map(|v| v.set_int(0));
 
             for model in collection.models.values() {
                 model.array.bind();
-                collection.shader.lighting.map(|v| v.set_float2(0.0, 0.0));
                 collection.shader.model_matrix.map(|v| v.set_matrix4_multi(&model.matrix));
 //println!("about to draw model {:?} {:?}", model.count, self.index_type);
                 gl::draw_elements(gl::TRIANGLES, model.count, self.index_type, 0);
@@ -207,20 +197,12 @@ init_shader! {
         frag = "model_frag",
         attribute = {
             optional position => "aPosition",
-            optional texture_info => "aTextureInfo",
-            optional texture_offset => "aTextureOffset",
-            optional color => "aColor",
             optional id => "id",
         },
         uniform = {
             optional perspective_matrix => "perspectiveMatrix",
             optional camera_matrix => "cameraMatrix",
             optional model_matrix => "modelMatrix[]",
-            optional texture => "textures",
-            optional light_level => "lightLevel",
-            optional sky_offset => "skyOffset",
-            optional lighting => "lighting",
-            optional color_mul => "colorMul[]",
         },
     }
 }
