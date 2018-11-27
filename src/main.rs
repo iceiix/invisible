@@ -55,7 +55,7 @@ fn main() {
     let mut events = game.sdl.event_pump().unwrap();
     let mut sun_model = sun::SunModel::new(&mut game.renderer);
     'outer: while !game.should_close {
-        sun_model.tick(&mut game.renderer, 0.0, 0);
+        sun_model.tick(&mut game.renderer);
 
         game.renderer.update_camera();
         game.renderer.tick();

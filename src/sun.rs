@@ -18,8 +18,10 @@ impl SunModel {
         }
     }
 
-    pub fn tick(&mut self, renderer: &mut render::Renderer, world_time: f64, world_age: i64) {
+    pub fn tick(&mut self, renderer: &mut render::Renderer) {
         use std::f64::consts::PI;
+        let world_time: f64 = 0.0;
+        let world_age: i64 = 0;
         let phase = ((world_age / 24000) % 8) as i32;
         if phase != self.last_phase {
             renderer.model.remove_model(self.moon);
