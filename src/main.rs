@@ -49,9 +49,8 @@ fn main() {
         window.gl_swap_window();
 
         for event in events.poll_iter() {
-            match event {
-                sdl2::event::Event::Quit{..} => break 'outer,
-                _ => (),
+            if let sdl2::event::Event::Quit = event {
+                break 'outer
             }
         }
     }
