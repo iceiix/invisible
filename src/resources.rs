@@ -14,12 +14,7 @@
 
 extern crate steven_resources as internal;
 
-use std::path;
 use std::io;
-use std::fs;
-use std::sync::mpsc;
-use std::sync::{Arc, Mutex};
-use std::hash::BuildHasherDefault;
 
 pub trait Pack: Sync + Send {
     fn open(&self, name: &str) -> Option<Box<io::Read>>;
@@ -29,25 +24,6 @@ pub struct Manager {
     packs: Vec<Box<Pack>>,
     version: usize,
 
-}
-
-struct ProgressUI {
-    task_name: String,
-    task_file: String,
-    position: f64,
-    closing: bool,
-    progress: f64,
-}
-
-struct Progress {
-    tasks: Vec<Task>,
-}
-
-struct Task {
-    task_name: String,
-    task_file: String,
-    total: u64,
-    progress: u64,
 }
 
 unsafe impl Sync for Manager {}
@@ -85,30 +61,6 @@ impl Manager {
             }
         }
         ret
-    }
-}
-
-struct DirPack {
-    root: path::PathBuf,
-}
-
-impl Pack for DirPack {
-    fn open(&self, name: &str) -> Option<Box<io::Read>> {
-        match fs::File::open(self.root.join(name)) {
-            Ok(val) => Some(Box::new(val)),
-            Err(_) => None,
-        }
-    }
-}
-
-struct InternalPack;
-
-impl Pack for InternalPack {
-    fn open(&self, name: &str) -> Option<Box<io::Read>> {
-        match internal::get_file(name) {
-            Some(val) => Some(Box::new(io::Cursor::new(val))),
-            None => None,
-        }
     }
 }
 
