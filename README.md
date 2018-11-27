@@ -7,7 +7,7 @@ Test case for OpenGL rendering issue, see:
 
 The sun is supposed to render on top of the sky:
 
-![Sun](https://user-images.githubusercontent.com/43691553/48989339-9c456680-f0de-11e8-874c-34035de82aec.png)
+![Sun](https://user-images.githubusercontent.com/43691553/49110303-f9a5f880-f241-11e8-97a9-17f2d6c58404.png)
 
 If the problem occurs, then the sun invisible, only rendering the sky background:
 
