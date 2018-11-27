@@ -14,9 +14,6 @@
 
 #![recursion_limit="300"]
 
-#[macro_use]
-pub mod macros;
-
 pub mod gl;
 pub mod server;
 pub mod resources;
