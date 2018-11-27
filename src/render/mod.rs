@@ -20,7 +20,6 @@ pub mod model;
 use crate::gl;
 use byteorder::{WriteBytesExt, NativeEndian};
 use cgmath::prelude::*;
-use collision;
 
 // TEMP
 const NUM_SAMPLES: i32 = 2;
@@ -33,7 +32,6 @@ pub struct Renderer {
 
     perspective_matrix: cgmath::Matrix4<f32>,
     camera_matrix: cgmath::Matrix4<f32>,
-    pub frustum: collision::Frustum<f32>,
     pub view_vector: cgmath::Vector3<f32>,
 
     pub frame_id: u32,
@@ -63,7 +61,6 @@ impl Renderer {
 
             perspective_matrix: cgmath::Matrix4::identity(),
             camera_matrix: cgmath::Matrix4::identity(),
-            frustum: collision::Frustum::from_matrix4(cgmath::Matrix4::identity()).unwrap(),
             view_vector: cgmath::Vector3::zero(),
 
             frame_id: 1,
@@ -110,7 +107,6 @@ impl Renderer {
             cgmath::Vector3::new(0.0, -1.0, 0.0)
         );
         self.camera_matrix = camera_matrix * cgmath::Matrix4::from_nonuniform_scale(-1.0, 1.0, 1.0);
-        self.frustum = collision::Frustum::from_matrix4(self.perspective_matrix * self.camera_matrix).unwrap();
     }
 
     pub fn tick(&mut self) {
@@ -126,7 +122,7 @@ impl Renderer {
         gl::clear(gl::ClearFlags::Color | gl::ClearFlags::Depth);
 
         // Model rendering
-        self.model.draw(&self.frustum, &self.perspective_matrix, &self.camera_matrix);
+        self.model.draw(&self.perspective_matrix, &self.camera_matrix);
 
         trans.trans.bind();
         gl::clear_buffer(gl::COLOR, 0, &[0.0, 0.0, 0.0, 1.0]);

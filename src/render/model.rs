@@ -3,7 +3,6 @@ use super::glsl;
 use super::shaders;
 use crate::gl;
 use cgmath::{Matrix4, SquareMatrix};
-use collision::{Frustum};
 use std::collections::HashMap;
 use byteorder::{WriteBytesExt, NativeEndian};
 
@@ -156,7 +155,7 @@ impl Manager {
         }
     }
 
-    pub fn draw(&mut self, _frustum: &Frustum<f32>, perspective_matrix: &Matrix4<f32>, camera_matrix: &Matrix4<f32>) {
+    pub fn draw(&mut self, perspective_matrix: &Matrix4<f32>, camera_matrix: &Matrix4<f32>) {
         for collection in &self.collections {
             collection.shader.program.use_program();
             collection.shader.perspective_matrix.map(|v| v.set_matrix4(perspective_matrix));

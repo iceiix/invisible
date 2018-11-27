@@ -8,7 +8,6 @@ edition = "2018"
 sdl2 = "0.31.0"
 byteorder = "1.2.6"
 cgmath = "0.16.1"
-collision = "0.18.0"
 
 [dependencies.steven_gl]
 path = "./gl"
