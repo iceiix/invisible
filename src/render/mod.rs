@@ -143,23 +143,6 @@ impl Renderer {
     fn init_trans(&mut self, width: u32, height: u32) {
         self.trans = Some(TransInfo::new(width, height, &self.trans_shader));
     }
-
-    // called by sun
-    pub fn get_texture() -> Texture {
-        return Texture {
-            name: "".to_owned(),
-            atlas: 0,
-            x: 0,
-            y: 0,
-            width: 0,
-            height: 0,
-            rel_x: 0.0,
-            rel_y: 0.0,
-            rel_width: 1.0,
-            rel_height: 1.0,
-            is_rel: false,
-        };
-    }
 }
 
 struct TransInfo {
