@@ -17,6 +17,7 @@ pub mod render;
 pub mod sun;
 
 use sdl2::Sdl;
+use sdl2::event::Event;
 
 pub struct Game {
     renderer: render::Renderer,
@@ -53,7 +54,7 @@ fn main() {
     };
     let mut events = game.sdl.event_pump().unwrap();
     let mut sun_model = sun::SunModel::new(&mut game.renderer);
-    while !game.should_close {
+    'outer: while !game.should_close {
         sun_model.tick(&mut game.renderer, 0.0, 0);
 
         game.renderer.update_camera();
@@ -62,17 +63,10 @@ fn main() {
         window.gl_swap_window();
 
         for event in events.poll_iter() {
-            handle_window_event(&mut game, event);
+            match event {
+                Event::Quit{..} => break 'outer,
+                _ => (),
+            }
         }
-    }
-}
-
-fn handle_window_event( game: &mut Game,
-                       event: sdl2::event::Event) {
-    use sdl2::event::Event;
-
-    match event {
-        Event::Quit{..} => game.should_close = true,
-        _ => (),
     }
 }
