@@ -81,11 +81,6 @@ impl Manager {
             collection.shader.id.map(|v| v.vertex_pointer_int(1, gl::UNSIGNED_BYTE, 36, 32));
 
             let mut model = Model {
-                // For culling only
-                x: 0.0,
-                y: 0.0,
-                z: 0.0,
-                radius: 0.0,
                 // Per a part
                 matrix: Vec::with_capacity(parts.len()),
                 colors: Vec::with_capacity(parts.len()),
@@ -191,11 +186,6 @@ struct Collection {
 }
 
 pub struct Model {
-    // For culling only
-    pub x: f32,
-    pub y: f32,
-    pub z: f32,
-    pub radius: f32,
     // Per a part
     pub matrix: Vec<Matrix4<f32>>,
     pub colors: Vec<[f32; 4]>,
