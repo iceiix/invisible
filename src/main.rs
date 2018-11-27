@@ -32,7 +32,7 @@ use sdl2::Sdl;
 use crate::server::sun;
 
 pub struct Game {
-    //TODO renderer: render::Renderer,
+    renderer: render::Renderer,
     should_close: bool,
     sdl: Sdl,
 }
@@ -64,11 +64,9 @@ fn main() {
     let vsync = true;
     sdl_video.gl_set_swap_interval(if vsync { 1 } else { 0 });
 
-/*
     let renderer = render::Renderer::new(resource_manager.clone());
-*/
     let mut game = Game {
-        //TODO renderer,
+        renderer,
         should_close: false,
         sdl,
     };
