@@ -37,9 +37,6 @@ pub struct Renderer {
     pub frame_id: u32,
 
     trans: Option<TransInfo>,
-
-    pub width: u32,
-    pub height: u32,
 }
 
 impl Renderer {
@@ -53,12 +50,7 @@ impl Renderer {
 
         Renderer {
             model: model::Manager::new(&greg),
-
             trans_shader,
-
-            width: 0,
-            height: 0,
-
             perspective_matrix: cgmath::Matrix4::identity(),
             camera_matrix: cgmath::Matrix4::identity(),
             view_vector: cgmath::Vector3::zero(),
@@ -74,8 +66,6 @@ impl Renderer {
 
         let width = 854;
         let height = 480;
-        self.width = width;
-        self.height = height;
         gl::viewport(0, 0, width as i32, height as i32);
 
         self.perspective_matrix = cgmath::Matrix4::from(
