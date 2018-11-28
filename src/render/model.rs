@@ -203,7 +203,7 @@ init_shader! {
         uniform = {
             optional perspective_matrix => "perspectiveMatrix",
             optional camera_matrix => "cameraMatrix",
-            optional model_matrix => "modelMatrix[]",
+            optional model_matrix => "modelMatrix",
         },
     }
 }
