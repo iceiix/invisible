@@ -501,6 +501,7 @@ impl Program {
         if u != -1 {
             Some(Uniform(u))
         } else {
+            println!("glGetUniformLocation failed for {}", name);
             None
         }
     }
@@ -513,6 +514,7 @@ impl Program {
         if a != -1 {
             Some(Attribute(a))
         } else {
+            println!("glGetAttributeLocation failed for {}", name);
             None
         }
     }
