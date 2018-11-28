@@ -1,5 +1,7 @@
 # invisible
 
+UPDATE: this was fixed by removing brackets from uniform name lookups
+
 Test case for OpenGL rendering issue, see:
 
 * https://github.com/iceiix/steven/issues/25 Invisible players/models
